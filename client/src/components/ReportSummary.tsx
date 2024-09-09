@@ -1,51 +1,31 @@
 import React from 'react';
 import { ProgramMetrics } from '../utils/metrics';
-import '../styles/ReportSummary.css';
 
 interface ReportSummaryProps {
   decisionTree: { [key: number]: string };
   metrics: ProgramMetrics;
+  questions: string[];
 }
 
-const ReportSummary: React.FC<ReportSummaryProps> = ({ decisionTree, metrics }) => {
+const ReportSummary: React.FC<ReportSummaryProps> = ({ decisionTree, metrics, questions }) => {
   return (
-    <div className="report-summary-container">
-      <header className="report-header">
-        <h1>Program Summary Report</h1>
-      </header>
-      <div className="report-content">
-        <section className="metrics-overview">
-          <h2>Key Metrics</h2>
-          <div className="metrics-grid">
-            <MetricBox title="Implementation Time" value={metrics.implementationTime} />
-            <MetricBox title="Estimated Cost" value={metrics.cost} />
-            <MetricBox title="Next Steps" value={`${metrics.nextSteps.length} steps`} />
-          </div>
-        </section>
-        <section className="program-details">
-          <h2>Program Details</h2>
-          <pre className="decision-tree">
-            {JSON.stringify(decisionTree, null, 2)}
-          </pre>
-        </section>
-        <section className="next-steps">
-          <h2>Implementation Roadmap</h2>
-          <ol className="steps-list">
-            {metrics.nextSteps.map((step, index) => (
-              <li key={index}>{step}</li>
-            ))}
-          </ol>
-        </section>
-      </div>
-    </div>
-  );
-};
-
-const MetricBox: React.FC<{ title: string; value: string }> = ({ title, value }) => {
-  return (
-    <div className="metric-box">
-      <h3>{title}</h3>
-      <p className="metric-value">{value}</p>
+    <div className="report-summary">
+      <h2>Report Summary</h2>
+      <h3>Your Decisions:</h3>
+      <ul>
+        {Object.entries(decisionTree).map(([index, answer]) => (
+          <li key={index}>
+            <strong>{questions[parseInt(index)]}:</strong> {answer}
+          </li>
+        ))}
+      </ul>
+      <h3>Program Metrics:</h3>
+      <ul>
+        <li>Estimated Cost: ${metrics.estimatedCost}</li>
+        <li>Potential Revenue: ${metrics.potentialRevenue}</li>
+        <li>ROI: {metrics.roi}%</li>
+        <li>Customer Retention Rate: {metrics.customerRetentionRate}%</li>
+      </ul>
     </div>
   );
 };

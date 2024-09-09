@@ -1,25 +1,21 @@
 export interface ProgramMetrics {
-  implementationTime: string;
-  cost: string;
-  nextSteps: string[];
+  estimatedCost: number;
+  potentialRevenue: number;
+  roi: number;
+  customerRetentionRate: number;
 }
 
-export async function generateProgramMetrics(decisionTree: {[key: number]: string}): Promise<ProgramMetrics> {
-  // In a real-world scenario, this function would make API calls to an AI service
-  // to generate accurate metrics based on the decision tree
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        implementationTime: "6-8 months",
-        cost: "$500,000 - $750,000",
-        nextSteps: [
-          "Conduct a comprehensive requirements analysis",
-          "Develop a detailed project plan and timeline",
-          "Assemble a cross-functional team of experts",
-          "Begin iterative development and testing phases",
-          "Implement robust security measures and compliance protocols",
-        ],
-      });
-    }, 2000); // Simulate API delay
-  });
-}
+export const generateProgramMetrics = async (selectedAnswers: { [key: number]: string }): Promise<ProgramMetrics> => {
+  // This is a placeholder implementation. In a real-world scenario, you'd likely call an API to calculate these metrics.
+  const estimatedCost = Math.random() * 10000;
+  const potentialRevenue = estimatedCost * (1 + Math.random());
+  const roi = ((potentialRevenue - estimatedCost) / estimatedCost) * 100;
+  const customerRetentionRate = Math.random() * 100;
+
+  return {
+    estimatedCost: parseFloat(estimatedCost.toFixed(2)),
+    potentialRevenue: parseFloat(potentialRevenue.toFixed(2)),
+    roi: parseFloat(roi.toFixed(2)),
+    customerRetentionRate: parseFloat(customerRetentionRate.toFixed(2)),
+  };
+};

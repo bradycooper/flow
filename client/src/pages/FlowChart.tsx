@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import QuestionDisplay from '../components/QuestionDisplay';
 import AnswerCard from '../components/AnswerCard';
 import ProgramOverviewPopup from '../components/ProgramOverviewPopup';
+import DecisionTreeSummary from '../components/DecisionTreeSummary';
 import { Question, Answer } from '../types';
 import { generateProgramMetrics, ProgramMetrics } from '../utils/metrics';
 import { generateReportUrl } from '../utils/reportGenerator';
+import ReportSummary from '../components/ReportSummary';
 import '../styles/FlowChart.css';
 
 const FlowChart: React.FC = () => {
@@ -16,9 +18,20 @@ const FlowChart: React.FC = () => {
   const [programMetrics, setProgramMetrics] = useState<ProgramMetrics | null>(null);
   const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  const questionDescriptions: { [key: string]: string } = {
+    '1': 'Who are you designing your rewards program for? Choose the group of customers or individuals you want to target with your rewards program. Your selection will influence the types of rewards and actions you can incentivize.',
+    '2': 'How do customers qualify to participate in your rewards program? Select the criteria that customers must meet in order to join. This could be based on registration, event attendance, or other actions.',
+    // ... add descriptions for all questions
+  };
+
   useEffect(() => {
     fetchQuestions();
   }, []);
+
+  useEffect(() => {
+    console.log('Questions in state:', questions);
+    console.log('First question description in state:', questions[0]?.questionDescription);
+  }, [questions]);
 
   async function fetchQuestions() {
     try {
@@ -27,42 +40,49 @@ const FlowChart: React.FC = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log('Fetched questions:', data); // Add this line
-      setQuestions(data);
-      questionRefs.current = data.map(() => null);
+      const updatedData = data.map((question: Question) => ({
+        ...question,
+        questionDescription: questionDescriptions[question.id as string] || 'No description available'
+      }));
+      console.log('Updated data:', updatedData);
+      setQuestions(updatedData);
+      questionRefs.current = updatedData.map(() => null);
     } catch (error) {
       console.error('Error fetching questions:', error);
     }
   }
 
-  const handleAnswerSelect = (questionIndex: number, answerName: string): void => {
-    setSelectedAnswers({...selectedAnswers, [questionIndex]: answerName});
-    
-    if (questionIndex === questions.length - 1) {
-      console.log('Last question answered, calling handleLastQuestionAnswered');
-      handleLastQuestionAnswered();
-    } else {
-      const nextQuestionIndex = questionIndex + 1;
-      setCurrentQuestionIndex(nextQuestionIndex);
+  const handleAnswerSelect = async (questionIndex: number, answerName: string): Promise<void> => {
+    try {
+      const newSelectedAnswers = { ...selectedAnswers, [questionIndex]: answerName };
+      setSelectedAnswers(newSelectedAnswers);
       
-      setTimeout(() => {
+      const nextQuestionIndex = questionIndex + 1;
+      if (nextQuestionIndex < questions.length) {
+        setCurrentQuestionIndex(nextQuestionIndex);
+        
+        await new Promise(resolve => setTimeout(resolve, 100));
         const nextQuestion = questionRefs.current[nextQuestionIndex];
         if (nextQuestion) {
           nextQuestion.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-      }, 100);
+      } else {
+        // Check if all questions are answered
+        if (Object.keys(newSelectedAnswers).length === questions.length) {
+          setShowProgramOverview(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error in handleAnswerSelect:', error);
     }
-  };
-
-  const handleLastQuestionAnswered = () => {
-    console.log('Last question answered, showing program overview');
-    setShowProgramOverview(true);
   };
 
   const handleGenerateReport = async () => {
     const metrics = await generateProgramMetrics(selectedAnswers);
     const reportUrl = generateReportUrl(questions, selectedAnswers, metrics);
     window.open(reportUrl, '_blank');
+    setShowReportSummary(true);
+    setProgramMetrics(metrics);
   };
 
   const handleReset = () => {
@@ -71,7 +91,6 @@ const FlowChart: React.FC = () => {
     setShowProgramOverview(false);
     setShowReportSummary(false);
     setProgramMetrics(null);
-    // Scroll to the top of the page
     window.scrollTo(0, 0);
   };
 
@@ -80,26 +99,37 @@ const FlowChart: React.FC = () => {
   };
 
   const renderDecisionTree = () => {
+    const halfLength = Math.ceil(questions.length / 2);
     return (
       <div className="decision-tree-container">
         <div className="decision-tree">
-          {questions.slice(0, currentQuestionIndex).map((question, index) => (
-            <div key={question.id || `decision-${index}`} className="decision-tree-item">
-              <span className="question">{question.text}:</span>
-              <span className="answer">{selectedAnswers[index]}</span>
-            </div>
-          ))}
+          <h2 className="decision-tree-title">Summary</h2>
+          <div className="decision-column">
+            {questions.slice(0, halfLength).map((question, index) => (
+              <div key={question.id || `decision-${index}`} className="decision-tree-item">
+                <span className="question">{question.text}</span>
+                <span className="answer">{selectedAnswers[index] || 'Not answered yet'}</span>
+              </div>
+            ))}
+          </div>
+          <div className="decision-column">
+            {questions.slice(halfLength).map((question, index) => (
+              <div key={question.id || `decision-${index + halfLength}`} className="decision-tree-item">
+                <span className="question">{question.text}</span>
+                <span className="answer">{selectedAnswers[index + halfLength] || 'Not answered yet'}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        {currentQuestionIndex > 0 && (
-          <button onClick={handleReset} className="reset-button">
-            Reset
-          </button>
-        )}
+        <button onClick={handleReset} className="reset-button">
+          Reset
+        </button>
       </div>
     );
   };
 
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+  const progress = (Object.keys(selectedAnswers).length / questions.length) * 100;
+  const hasAnsweredQuestions = Object.keys(selectedAnswers).length > 0;
 
   return (
     <div className="flow-chart-container">
@@ -109,16 +139,19 @@ const FlowChart: React.FC = () => {
           <div className="progress-bar">
             <div className="progress" style={{ width: `${progress}%` }}></div>
           </div>
-          <p className="progress-text">{`Question ${currentQuestionIndex + 1} of ${questions.length}`}</p>
+          <p className="progress-text">{`Question ${Object.keys(selectedAnswers).length} of ${questions.length}`}</p>
         </div>
       </header>
       <div className="flow-chart-content">
-        <aside className="sidebar">
-          {renderDecisionTree()}
-          <button onClick={handleReset} className="reset-button">
-            Reset
-          </button>
-        </aside>
+        {hasAnsweredQuestions && (
+          <aside className="summary-sidebar">
+            <DecisionTreeSummary
+              questions={questions}
+              selectedAnswers={selectedAnswers}
+              onReset={handleReset}
+            />
+          </aside>
+        )}
         <main className="main-content">
           {questions.map((question, index) => (
             <div 
@@ -127,7 +160,16 @@ const FlowChart: React.FC = () => {
               ref={el => questionRefs.current[index] = el}
             >
               <div className="question-column">
-                <QuestionDisplay question={question} />
+                <h2 className="question-text">{question.text}</h2>
+                {question.questionDescription ? (
+                  <p className="question-description">
+                    {question.questionDescription}
+                  </p>
+                ) : (
+                  <p className="question-description">
+                    No description available (Debug: {JSON.stringify(question)})
+                  </p>
+                )}
               </div>
               <div className="answer-column">
                 {question.answers.map((answer: Answer) => (
@@ -145,12 +187,21 @@ const FlowChart: React.FC = () => {
         </main>
       </div>
       {showProgramOverview && (
-        <ProgramOverviewPopup
-          questions={questions}
-          selectedAnswers={selectedAnswers}
-          onGenerateReport={handleGenerateReport}
-          onReset={handleReset}
-          onClose={handleCloseProgramOverview}
+        <div className="program-overview-overlay">
+          <ProgramOverviewPopup
+            questions={questions}
+            selectedAnswers={selectedAnswers}
+            onGenerateReport={handleGenerateReport}
+            onReset={handleReset}
+            onClose={() => setShowProgramOverview(false)}
+          />
+        </div>
+      )}
+      {showReportSummary && programMetrics && (
+        <ReportSummary
+          decisionTree={selectedAnswers}
+          metrics={programMetrics}
+          questions={questions.map(q => q.text)} // Pass the questions texts here
         />
       )}
     </div>

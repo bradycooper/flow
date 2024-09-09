@@ -1,6 +1,7 @@
 export interface Question {
   id: string;
-  text: string;  // Changed from 'question' to 'text'
+  text: string;
+  questionDescription?: string;
   answers: Answer[];
 }
 
@@ -11,7 +12,10 @@ export interface Answer {
 }
 
 export interface ProgramMetrics {
-  implementationTime: string;
-  cost: string;
-  nextSteps: string[];
+  estimatedCost: number;
+  potentialRevenue: number;
+  roi: number;
+  customerRetentionRate: number;
+  implementationTime?: string; // Make this optional
+  nextSteps?: string[]; // Make this optional
 }

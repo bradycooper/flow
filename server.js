@@ -14,6 +14,7 @@ const questions = [
   {
     id: '1',
     text: 'Who are you targeting for the program?',
+    questionDescription: 'Who are you designing your rewards program for? Choose the group of customers or individuals you want to target with your rewards program. Your selection will influence the types of rewards and actions you can incentivize.',
     answers: [
       {
         name: 'Old Customer',
@@ -40,6 +41,7 @@ const questions = [
   {
     id: '2',
     text: 'What are the qualification criteria?',
+    questionDescription: 'How do customers qualify to participate in your rewards program? Select the criteria that customers must meet in order to join. This could be based on registration, event attendance, or other actions.',
     answers: [
       {
         name: "Free",
@@ -86,6 +88,7 @@ const questions = [
   {
     id: '3',
     text: 'What type of reward program do you want to implement?',
+    questionDescription: 'What type of rewards program are you offering? Choose the reward structure that best aligns with your business goals. This could include cashback, loyalty points, or giveaways, depending on the behavior you want to incentivize.',
     answers: [
       {
         name: "Bonus",
@@ -122,6 +125,7 @@ const questions = [
   {
     id: '4',
     text: 'What behavior are you trying to incentivize?',
+    questionDescription: 'What specific behaviors do you want to reward? Select the actions that customers must take to earn rewards, such as making purchases, engaging on social media, or referring others. This will determine the overall goal of your program.',
     answers: [
       {
         name: "Buying",
@@ -178,6 +182,7 @@ const questions = [
   {
     id: '5',
     text: 'What types of rewards do you want to offer?',
+    questionDescription: 'What rewards will customers receive? Choose the type of reward you want to offer participants in your program. This could include cash, points, exclusive offers, or special treatment, depending on what best motivates your customers.',
     answers: [
       {
         name: "Cash",
@@ -220,6 +225,197 @@ const questions = [
         longDescription: "Customers can receive special treatment, such as exclusive access to events or priority customer service."
       }
     ]
+  },
+  {
+    id: '6',
+    text: 'How do customers earn rewards?',
+    questionDescription: 'How will customers earn rewards? Select the method through which customers will qualify for rewards. This could be based on purchases, participation in contests, referrals, or social media engagement.',
+    answers: [
+      {
+        name: "Purchase Patterns",
+        shortDescription: "Rewards based on purchase patterns.",
+        longDescription: "Customers earn rewards based on the number of purchases made. This could be measured by various factors such as purchase amount, frequency, or size of the order."
+      },
+      {
+        name: "Purchase Amount",
+        shortDescription: "Rewards based on purchase amount.",
+        longDescription: "Rewards are given depending on the total value of a customer's purchase. Higher purchase amounts may lead to better rewards."
+      },
+      {
+        name: "Purchase Frequency",
+        shortDescription: "Rewards based on how often customers purchase.",
+        longDescription: "Rewards are based on how often a customer makes a purchase, encouraging repeat visits."
+      },
+      {
+        name: "Time-Based",
+        shortDescription: "Rewards based on specific time periods.",
+        longDescription: "Customers earn rewards by purchasing within a specific time window, such as during promotions or peak seasons."
+      },
+      {
+        name: "Purchase Size",
+        shortDescription: "Rewards based on the size of the purchase.",
+        longDescription: "Rewards are tied to the quantity or size of a single order, encouraging larger purchases."
+      },
+      {
+        name: "Contests",
+        shortDescription: "Rewards given through contests.",
+        longDescription: "Customers participate in contests to win rewards, typically requiring them to perform specific tasks or enter a drawing."
+      },
+      {
+        name: "Gamification",
+        shortDescription: "Incentivize participation through games.",
+        longDescription: "Use game-like features such as points, levels, and badges to engage customers and reward them for their actions."
+      },
+      {
+        name: "Loyalty Duration",
+        shortDescription: "Rewards based on how long customers stay loyal.",
+        longDescription: "Customers are rewarded for remaining loyal to the brand over time, often based on milestones or membership duration."
+      },
+      {
+        name: "Referrals",
+        shortDescription: "Reward for referring new customers.",
+        longDescription: "Customers earn rewards by referring friends, family, or new customers to the brand."
+      },
+      {
+        name: "Social Media Engagement",
+        shortDescription: "Rewards for social media posts.",
+        longDescription: "Customers earn rewards by posting about the brand on social media or creating user-generated content."
+      },
+      {
+        name: "Lottery",
+        shortDescription: "Random rewards through a lottery system.",
+        longDescription: "Customers are entered into a lottery or lucky draw where winners are chosen at random to receive rewards."
+      },
+      {
+        name: "Random Rewards",
+        shortDescription: "Rewards are given randomly.",
+        longDescription: "Rewards are distributed randomly to customers, creating an element of surprise and excitement."
+      }
+    ]
+  },
+  {
+    id: '7',
+    text: 'How much do customers earn?',
+    questionDescription: 'How will the reward amount be calculated? Choose how much customers will earn based on their actions. Rewards can be a fixed amount, a percentage of their purchase, or based on performance or tier levels.',
+    answers: [
+      {
+        name: "Fixed Value",
+        shortDescription: "Reward a fixed value for participation.",
+        longDescription: "Customers earn a set, fixed amount for completing the desired action. This amount does not change regardless of performance or status."
+      },
+      {
+        name: "Fixed Percentage",
+        shortDescription: "Reward a fixed percentage.",
+        longDescription: "Customers earn a percentage of their total purchase amount as a reward. This is common in cashback or discount programs."
+      },
+      {
+        name: "Performance-Based",
+        shortDescription: "Rewards change based on performance.",
+        longDescription: "The reward value changes depending on the customer's performance, such as how much they spend or how many referrals they make."
+      },
+      {
+        name: "Tiered Rewards",
+        shortDescription: "Rewards increase with higher tiers.",
+        longDescription: "Customers can earn tiered rewards, where they receive better rewards for reaching higher levels of spending, referrals, or loyalty status."
+      }
+    ]
+  },
+  {
+    id: '8',
+    text: 'When do customers receive their rewards?',
+    questionDescription: 'When will customers receive their rewards? Decide when customers can redeem their rewards. This could be immediately after completing an action, during subsequent purchases, or within a specific time frame.',
+    answers: [
+      {
+        name: "Immediate",
+        shortDescription: "Customers get the reward immediately.",
+        longDescription: "Customers can redeem their reward as soon as they complete the required action, such as after making a purchase or referring a friend."
+      },
+      {
+        name: "Future Purchase",
+        shortDescription: "Rewards are applied to future purchases.",
+        longDescription: "Customers earn rewards that can only be redeemed on future purchases, encouraging return business."
+      },
+      {
+        name: "Time-Limited Claim",
+        shortDescription: "Rewards must be claimed within a certain time.",
+        longDescription: "Customers must redeem their rewards within a specified time frame, or the reward will expire."
+      },
+      {
+        name: "Limited-Time Offer",
+        shortDescription: "Offer valid for a short time.",
+        longDescription: "Customers must act within a limited time to redeem the reward or participate in the offer."
+      },
+      {
+        name: "Expiration Date",
+        shortDescription: "Rewards have a set expiration date.",
+        longDescription: "Rewards must be redeemed before their expiration date; otherwise, they will no longer be valid."
+      },
+      {
+        name: "First-Come-First-Served",
+        shortDescription: "Rewards for being among the first.",
+        longDescription: "Rewards are given to the first or specific number of customers who complete an action, such as the first 100 purchasers or the 10th visitor."
+      },
+      {
+        name: "Random Intervals",
+        shortDescription: "Rewards are given at random intervals.",
+        longDescription: "Customers receive rewards randomly, either after purchases or during specific times, adding an element of surprise."
+      }
+    ]
+  },
+  {
+    id: '9',
+    text: 'What status levels are available in the program?',
+    questionDescription: 'Does the program offer any special status for customers? Select if your program will recognize certain customers with VIP status, special treatment, or advanced notice for events and offers.',
+    answers: [
+      {
+        name: "No Status",
+        shortDescription: "No status recognition.",
+        longDescription: "The program does not include any status levels or VIP recognition for customers."
+      },
+      {
+        name: "VIP Status",
+        shortDescription: "Recognize customers with VIP status.",
+        longDescription: "Customers who reach certain milestones or spend thresholds can achieve VIP status and receive exclusive rewards or recognition."
+      },
+      {
+        name: "Special Treatment",
+        shortDescription: "Offer special treatment to top customers.",
+        longDescription: "Customers receive special treatment such as personalized offers, concierge service, or exclusive event invitations."
+      },
+      {
+        name: "Advanced Notice",
+        shortDescription: "Offer advanced notice of offers and events.",
+        longDescription: "Customers with higher status receive advanced notice of upcoming sales, exclusive events, or product releases before the general public."
+      }
+    ]
+  },
+  {
+    id: '10',
+    text: 'Who receives the rewards?',
+    questionDescription: 'Who will receive the reward? Choose who the beneficiary of the reward will be. The reward can go to the customer who completes the action, a charity, or another individual chosen by the customer.',
+    answers: [
+      {
+        name: "Customer",
+        shortDescription: "The customer who completes the action earns the reward.",
+        longDescription: "The consumer who performs the specified action, such as making a purchase or referring a friend, receives the reward."
+      },
+      {
+        name: "Chosen Beneficiary",
+        shortDescription: "The reward goes to a person of the customer's choosing.",
+        longDescription: "The customer can choose a specified beneficiary, such as a family member or friend, to receive the reward instead of themselves."
+      },
+      {
+        name: "Company-Supported Cause",
+        shortDescription: "The reward goes to a cause supported by the company.",
+        longDescription: "The reward is donated to a company-supported cause or charity, benefiting a larger social or community goal."
+      },
+      {
+        name: "Customer-Chosen Charity",
+        shortDescription: "The customer can donate the reward to a charity.",
+        longDescription: "The customer can choose a charity to receive the reward, donating the reward amount to the chosen charity."
+      }
+    ]
+    
   }
 ];
 
@@ -230,7 +426,7 @@ app.get('/', (req, res) => {
 
 // API route
 app.get('/api/questions', (req, res) => {
-  // This should send JSON data, not HTML
+  console.log('Sending questions:', JSON.stringify(questions[0], null, 2));
   res.json(questions);
 });
 

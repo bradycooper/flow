@@ -1,10 +1,19 @@
-import { Question, ProgramMetrics } from '../types';
+import { Question } from '../types';
+import { ProgramMetrics } from './metrics';
 
-export function generateReportUrl(
+export const generateReportUrl = (
   questions: Question[],
   selectedAnswers: { [key: number]: string },
   metrics: ProgramMetrics
-): string {
-  const encodedData = encodeURIComponent(JSON.stringify({ questions, selectedAnswers, metrics }));
+): string => {
+  const reportData = {
+    decisions: questions.map((q, index) => ({
+      question: q.text,
+      answer: selectedAnswers[index],
+    })),
+    metrics: metrics,
+  };
+
+  const encodedData = encodeURIComponent(JSON.stringify(reportData));
   return `/report?data=${encodedData}`;
-}
+};

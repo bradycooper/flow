@@ -1,138 +1,120 @@
 .program-overview-popup {
-  position: fixed;
-  top: 0;
+  background-color: #ffffff;
+  color: #1e293b;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  font-family: 'Inter', sans-serif;
+  position: relative;
+}
+
+.program-overview-popup h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  color: #3b82f6;
+  text-align: center;
+}
+
+.overview-content {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 80px; /* Add space for the sticky buttons */
+}
+
+.overview-item {
+  background-color: #f8fafc;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.overview-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.overview-item h3 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #3b82f6;
+}
+
+.overview-item p {
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.overview-actions-wrapper {
+  position: sticky;
+  bottom: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-}
-
-.program-overview-content {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.overview-title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  color: #0f172a;
-}
-
-.questions-container {
-  margin-bottom: 1.5rem;
-}
-
-.question-answer-pair {
-  margin-bottom: 1rem;
+  background-color: rgba(255, 255, 255, 0.9); /* Light opacity background */
   padding: 1rem;
-  background-color: #f1f5f9;
-  border-radius: 4px;
+  backdrop-filter: blur(5px); /* Add a blur effect for a frosted glass look */
 }
 
-.question {
-  font-size: 16px;
-  margin-bottom: 0.5rem;
-  color: #0f172a;
-}
-
-.answer {
-  font-size: 14px;
-  color: #1e40af;
-}
-
-.button-container {
+.overview-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 1rem;
 }
 
-.reset-button,
-.generate-report-button,
-.close-button {
+.action-button {
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.reset-button {
-  background-color: #e2e8f0;
-  color: #0f172a;
-}
-
-.generate-report-button {
-  background-color: #2563eb;
+.action-button.generate {
+  background-color: #3b82f6;
   color: white;
 }
 
-.close-button {
+.action-button.generate:hover {
+  background-color: #2563eb;
+}
+
+.action-button.reset {
   background-color: #ef4444;
   color: white;
 }
 
-.reset-button:hover,
-.generate-report-button:hover,
-.close-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.action-button.reset:hover {
+  background-color: #dc2626;
 }
 
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 90%;
-  max-width: 600px;
-  min-height: 200px;
+.action-button.close {
+  background-color: #f3f4f6;
+  color: #4b5563;
 }
 
-.loading-spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
+.action-button.close:hover {
+  background-color: #e5e7eb;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+@media (max-width: 768px) {
+  .overview-content {
+    grid-template-columns: 1fr;
+  }
 
-.loading-container h2 {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  color: #0f172a;
-}
+  .overview-actions {
+    flex-direction: column;
+  }
 
-.loading-container p {
-  font-size: 16px;
-  color: #1e40af;
-  text-align: center;
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  .action-button {
+    width: 100%;
+  }
 }
