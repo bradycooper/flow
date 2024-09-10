@@ -1,14 +1,88 @@
 import React, { useState, useEffect, useRef } from 'react';
-import QuestionDisplay from '../components/QuestionDisplay';
-import AnswerCard from '../components/AnswerCard';
-import ProgramOverviewPopup from '../components/ProgramOverviewPopup';
-import DecisionTreeSummary from '../components/DecisionTreeSummary';
-import { Question, Answer } from '../types';
-import { generateProgramMetrics, ProgramMetrics } from '../utils/metrics';
+import { generateProgramMetrics } from '../utils/metrics';
 import { generateReportUrl } from '../utils/reportGenerator';
-import ReportSummary from '../components/ReportSummary';
 import '../styles/FlowChart.css';
+import { FaRocket, FaUndo, FaTimes } from 'react-icons/fa';
 
+// Define types locally to avoid conflicts
+type Question = {
+  id: string;
+  text: string;
+  answers: Answer[];
+  questionDescription?: string;
+};
+
+type Answer = {
+  name: string;
+  description: string;
+  shortDescription: string;
+  longDescription: string;
+};
+
+// Update the ProgramMetrics type to match the one from utils/metrics
+type ProgramMetrics = {
+  estimatedCost: number;
+  // Remove projectedEngagement as it's not part of the returned metrics
+};
+
+// Add this type definition
+type UserInfo = {
+  name: string;
+  email: string;
+  companyUrl: string;
+  revenue: string;
+  retentionRate: string;
+  wholesaleRate: string;
+  ltv: string;
+  aov: string;
+};
+
+// AnswerCard component
+const AnswerCard: React.FC<{
+  answer: Answer;
+  isSelected: boolean;
+  isDisabled: boolean;
+  onSelect: () => void;
+}> = ({ answer, isSelected, isDisabled, onSelect }) => (
+  <div
+    className={`answer-card ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
+    onClick={!isDisabled ? onSelect : undefined}
+  >
+    <h3>{answer.name}</h3>
+    <p className="answer-description">{answer.description}</p>
+    <p className="answer-short-description">{answer.shortDescription}</p>
+  </div>
+);
+
+// DecisionTreeSummary component
+const DecisionTreeSummary: React.FC<{
+  questions: Question[];
+  selectedAnswers: {[key: number]: string};
+  onReset: () => void;
+}> = ({ questions, selectedAnswers, onReset }) => (
+  <div className="decision-tree-summary">
+    <h2>Program Configuration</h2>
+    <div className="tech-summary">
+      {questions.map((question, index) => {
+        const selectedAnswerName = selectedAnswers[index];
+        if (!selectedAnswerName) return null;
+        const selectedAnswer = question.answers.find(a => a.name === selectedAnswerName);
+        return (
+          <div key={question.id || `decision-${index}`} className="config-item">
+            <span className="config-key">{`${index + 1}. ${question.text}`}</span>
+            <span className="config-value">{selectedAnswerName}</span>
+            {selectedAnswer && (
+              <span className="config-description">{selectedAnswer.shortDescription}</span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+    <button onClick={onReset} className="reset-button">Reset Configuration</button>
+  </div>
+);
+
+// Main FlowChart component
 const FlowChart: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
@@ -17,6 +91,16 @@ const FlowChart: React.FC = () => {
   const [showReportSummary, setShowReportSummary] = useState(false);
   const [programMetrics, setProgramMetrics] = useState<ProgramMetrics | null>(null);
   const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [userInfo, setUserInfo] = useState<UserInfo>({
+    name: '',
+    email: '',
+    companyUrl: '',
+    revenue: '',
+    retentionRate: '',
+    wholesaleRate: '',
+    ltv: '',
+    aov: '',
+  });
 
   const questionDescriptions: { [key: string]: string } = {
     '1': 'Who are you designing your rewards program for? Choose the group of customers or individuals you want to target with your rewards program. Your selection will influence the types of rewards and actions you can incentivize.',
@@ -82,10 +166,13 @@ const FlowChart: React.FC = () => {
 
   const handleGenerateReport = async () => {
     const metrics = await generateProgramMetrics(selectedAnswers);
-    const reportUrl = generateReportUrl(questions, selectedAnswers, metrics);
+    const reportUrl = generateReportUrl(questions as any, selectedAnswers, metrics as any);
     window.open(reportUrl, '_blank');
     setShowReportSummary(true);
-    setProgramMetrics(metrics);
+    
+    setProgramMetrics({
+      estimatedCost: metrics.estimatedCost,
+    });
   };
 
   const handleReset = () => {
@@ -133,6 +220,40 @@ const FlowChart: React.FC = () => {
 
   const progress = (Object.keys(selectedAnswers).length / questions.length) * 100;
   const hasAnsweredQuestions = Object.keys(selectedAnswers).length > 0;
+
+  const handleUserInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setUserInfo(prevInfo => ({ ...prevInfo, [name]: value }));
+  };
+
+  const renderUserInfoForm = () => (
+    <div className="user-info-form">
+      <h3>Company Information</h3>
+      <input type="text" name="name" placeholder="Name" value={userInfo.name} onChange={handleUserInfoChange} />
+      <input type="email" name="email" placeholder="Email" value={userInfo.email} onChange={handleUserInfoChange} />
+      <input type="url" name="companyUrl" placeholder="Company URL" value={userInfo.companyUrl} onChange={handleUserInfoChange} />
+      <input type="number" name="revenue" placeholder="Revenue ($)" value={userInfo.revenue} onChange={handleUserInfoChange} />
+      <input type="number" name="retentionRate" placeholder="Retention Rate (%)" min="0" max="100" step="0.1" value={userInfo.retentionRate} onChange={handleUserInfoChange} />
+      <input type="number" name="wholesaleRate" placeholder="Wholesale Rate (%)" min="0" max="100" step="0.1" value={userInfo.wholesaleRate} onChange={handleUserInfoChange} />
+      <input type="number" name="ltv" placeholder="LTV ($)" value={userInfo.ltv} onChange={handleUserInfoChange} />
+      <input type="number" name="aov" placeholder="AOV ($)" value={userInfo.aov} onChange={handleUserInfoChange} />
+    </div>
+  );
+
+  const renderProgramOverview = () => {
+    return (
+      <div className="program-overview-content">
+        <h2>Your Program Is Almost Ready!</h2>
+        <p>Fill out some more information to get a full report.</p>
+        {renderUserInfoForm()}
+        <div className="overview-actions">
+          <button onClick={handleGenerateReport}><FaRocket /> Generate Report</button>
+          <button onClick={handleReset}><FaUndo /> Reset</button>
+          <button onClick={() => setShowProgramOverview(false)}><FaTimes /> Close</button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="flow-chart-container">
@@ -191,21 +312,10 @@ const FlowChart: React.FC = () => {
       </div>
       {showProgramOverview && (
         <div className="program-overview-overlay">
-          <ProgramOverviewPopup
-            questions={questions}
-            selectedAnswers={selectedAnswers}
-            onGenerateReport={handleGenerateReport}
-            onReset={handleReset}
-            onClose={() => setShowProgramOverview(false)}
-          />
+          <div className="program-overview-popup">
+            {renderProgramOverview()}
+          </div>
         </div>
-      )}
-      {showReportSummary && programMetrics && (
-        <ReportSummary
-          decisionTree={selectedAnswers}
-          metrics={programMetrics}
-          questions={questions.map(q => q.text)} // Pass the questions texts here
-        />
       )}
     </div>
   );
