@@ -9,26 +9,32 @@ body {
 }
 
 .report-container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 20px;
+  background-color: #f8f9fa;
 }
 
 .report-header {
   background-color: #1e293b;
   color: white;
   padding: 1.5rem;
-  border-radius: 8px;
+  border-radius: 8px 8px 0 0;
   margin-bottom: 1.5rem;
   text-align: center;
 }
 
 .report-header h1 {
-  font-size: 2rem;
+  margin: 0;
+  font-size: 24px;
   font-weight: 700;
 }
 
 .report-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -169,6 +175,53 @@ h2 {
 .cta-button:hover {
   background-color: #f8fafc;
   color: #2563eb;
+}
+
+/* Styles from ReportSummary.css */
+.report-summary-container {
+  font-family: 'Inter', sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8f9fa;
+}
+
+.metrics-overview h2,
+.program-details h2,
+.next-steps h2 {
+  color: #0f172a;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 10px;
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.decision-tree {
+  background-color: #f1f5f9;
+  padding: 15px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin-bottom: 30px;
+}
+
+.steps-list {
+  list-style-type: decimal;
+  padding-left: 20px;
+}
+
+.steps-list li {
+  margin-bottom: 10px;
+  color: #334155;
 }
 
 @media (max-width: 768px) {

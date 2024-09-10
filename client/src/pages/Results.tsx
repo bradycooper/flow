@@ -1,6 +1,7 @@
 import React from 'react';
 import '../styles/Results.css';
 
+
 // Define types locally (same as in FlowChart.tsx)
 type Question = {
   id: string;
@@ -26,6 +27,7 @@ const Results: React.FC<{
   selectedAnswers: {[key: number]: string};
   metrics: ProgramMetrics;
 }> = ({ questions, selectedAnswers, metrics }) => {
+
   console.log('Rendering Results component');
   console.log('Questions:', questions);
   console.log('Selected Answers:', selectedAnswers);
@@ -47,6 +49,7 @@ const Results: React.FC<{
         <h2>Program Metrics</h2>
         <p>Estimated Cost: ${metrics.estimatedCost}</p>
       </div>
+
       <div className="variations-highlight">
         <h2>Program Variations</h2>
         <div className="variations-box">
@@ -56,6 +59,7 @@ const Results: React.FC<{
           <p className="variations-emphasis">This is 1 in 8 million.</p>
         </div>
       </div>
+
     </div>
   );
 };

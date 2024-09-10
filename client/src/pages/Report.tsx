@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ProgramMetrics } from '../types';
 import '../styles/Report.css';
+import '../styles/FlowChart.css';
 
 interface ReportData {
   decisions: { question: string; answer: string }[];
