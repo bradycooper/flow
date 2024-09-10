@@ -198,6 +198,24 @@ Yet yielding you over $${data.metrics.potentialRevenue.toLocaleString()} in reve
   );
 };
 
+const VariationsHighlight: React.FC = () => {
+  return (
+    <section className="variations-highlight">
+      <h2>Program Variations</h2>
+      <div className="variations-content">
+        <div className="variations-box">
+          <p className="variations-number">8,103,360</p>
+          <p className="variations-text">different ways</p>
+        </div>
+        <div className="variations-description">
+          <p>to create different programs!</p>
+          <p className="variations-emphasis">This is 1 in 8 million.</p>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const Report: React.FC = () => {
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const location = useLocation();
@@ -232,6 +250,8 @@ const Report: React.FC = () => {
           withoutKwikTimeline={calculateWithoutKwikTimeline(reportData)}
           kwikSuccessScore={calculateKwikSuccessScore(reportData)}
         />
+        
+        <VariationsHighlight />  {/* Add this line */}
         
         <section className="program-details">
           <h2>Program Details</h2>

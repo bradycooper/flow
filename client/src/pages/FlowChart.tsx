@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useRef, FormEvent } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+
 import { generateProgramMetrics } from '../utils/metrics';
 import { generateReportUrl } from '../utils/reportGenerator';
 import '../styles/FlowChart.css';
+import { FaRocket, FaUndo, FaTimes } from 'react-icons/fa';
 
 // Define types locally to avoid conflicts
 type Question = {
@@ -24,15 +26,17 @@ type ProgramMetrics = {
   // Remove projectedEngagement as it's not part of the returned metrics
 };
 
+
 type UserInfo = {
-  fullName: string;
-  workEmail: string;
-  url: string;
+  name: string;
+  email: string;
+  companyUrl: string;
   revenue: string;
-  aov: string;
-  ltv: string;
-  companyRetentionRate: string;
+  retentionRate: string;
   wholesaleRate: string;
+  ltv: string;
+  aov: string;
+
 };
 
 // AnswerCard component
@@ -47,7 +51,38 @@ const AnswerCard: React.FC<{
     onClick={!isDisabled ? onSelect : undefined}
   >
     <h3>{answer.name}</h3>
-    <p>{answer.description}</p>
+
+    <p className="answer-description">{answer.description}</p>
+    <p className="answer-short-description">{answer.shortDescription}</p>
+  </div>
+);
+
+// DecisionTreeSummary component
+const DecisionTreeSummary: React.FC<{
+  questions: Question[];
+  selectedAnswers: {[key: number]: string};
+  onReset: () => void;
+}> = ({ questions, selectedAnswers, onReset }) => (
+  <div className="decision-tree-summary">
+    <h2>Program Configuration</h2>
+    <div className="tech-summary">
+      {questions.map((question, index) => {
+        const selectedAnswerName = selectedAnswers[index];
+        if (!selectedAnswerName) return null;
+        const selectedAnswer = question.answers.find(a => a.name === selectedAnswerName);
+        return (
+          <div key={question.id || `decision-${index}`} className="config-item">
+            <span className="config-key">{`${index + 1}. ${question.text}`}</span>
+            <span className="config-value">{selectedAnswerName}</span>
+            {selectedAnswer && (
+              <span className="config-description">{selectedAnswer.shortDescription}</span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+    <button onClick={onReset} className="reset-button">Reset Configuration</button>
+
   </div>
 );
 
@@ -61,16 +96,16 @@ const FlowChart: React.FC = () => {
   const [programMetrics, setProgramMetrics] = useState<ProgramMetrics | null>(null);
   const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [userInfo, setUserInfo] = useState<UserInfo>({
-    fullName: '',
-    workEmail: '',
-    url: '',
+    name: '',
+    email: '',
+    companyUrl: '',
     revenue: '',
-    aov: '',
+    retentionRate: '',
+    wholesaleRate: '',
     ltv: '',
-    companyRetentionRate: '',
-    wholesaleRate: ''
+    aov: '',
   });
-  const [showUserForm, setShowUserForm] = useState(false);
+
 
   const questionDescriptions: { [key: string]: string } = {
     '1': 'Who are you designing your rewards program for? Choose the group of customers or individuals you want to target with your rewards program. Your selection will influence the types of rewards and actions you can incentivize.',
@@ -179,29 +214,40 @@ const FlowChart: React.FC = () => {
   const progress = (Object.keys(selectedAnswers).length / questions.length) * 100;
   const hasAnsweredQuestions = Object.keys(selectedAnswers).length > 0;
 
-  const handleUserInfoSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    // Here you would typically send the user info and selected answers to your backend
-    console.log('User info:', userInfo);
-    console.log('Selected answers:', selectedAnswers);
-    await handleGenerateReport();
-    setShowUserForm(false);
+
+  const handleUserInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setUserInfo(prevInfo => ({ ...prevInfo, [name]: value }));
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    let formattedValue = value;
+  const renderUserInfoForm = () => (
+    <div className="user-info-form">
+      <h3>Company Information</h3>
+      <input type="text" name="name" placeholder="Name" value={userInfo.name} onChange={handleUserInfoChange} />
+      <input type="email" name="email" placeholder="Email" value={userInfo.email} onChange={handleUserInfoChange} />
+      <input type="url" name="companyUrl" placeholder="Company URL" value={userInfo.companyUrl} onChange={handleUserInfoChange} />
+      <input type="number" name="revenue" placeholder="Revenue ($)" value={userInfo.revenue} onChange={handleUserInfoChange} />
+      <input type="number" name="retentionRate" placeholder="Retention Rate (%)" min="0" max="100" step="0.1" value={userInfo.retentionRate} onChange={handleUserInfoChange} />
+      <input type="number" name="wholesaleRate" placeholder="Wholesale Rate (%)" min="0" max="100" step="0.1" value={userInfo.wholesaleRate} onChange={handleUserInfoChange} />
+      <input type="number" name="ltv" placeholder="LTV ($)" value={userInfo.ltv} onChange={handleUserInfoChange} />
+      <input type="number" name="aov" placeholder="AOV ($)" value={userInfo.aov} onChange={handleUserInfoChange} />
+    </div>
+  );
 
-    // Format the input values
-    if (name === 'revenue' || name === 'aov' || name === 'ltv') {
-      // Remove non-digit characters and format as currency
-      formattedValue = '$' + value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    } else if (name === 'companyRetentionRate' || name === 'wholesaleRate') {
-      // Remove non-digit characters and add % sign
-      formattedValue = value.replace(/\D/g, '') + '%';
-    }
+  const renderProgramOverview = () => {
+    return (
+      <div className="program-overview-content">
+        <h2>Your Program Is Almost Ready!</h2>
+        <p>Fill out some more information to get a full report.</p>
+        {renderUserInfoForm()}
+        <div className="overview-actions">
+          <button onClick={handleGenerateReport}><FaRocket /> Generate Report</button>
+          <button onClick={handleReset}><FaUndo /> Reset</button>
+          <button onClick={() => setShowProgramOverview(false)}><FaTimes /> Close</button>
+        </div>
+      </div>
+    );
 
-    setUserInfo(prev => ({ ...prev, [name]: formattedValue }));
   };
 
   return (
@@ -258,116 +304,12 @@ const FlowChart: React.FC = () => {
       {showProgramOverview && (
         <div className="program-overview-overlay">
           <div className="program-overview-popup">
-            <h2>Program Overview</h2>
-            <div className="overview-content">
-              {questions.map((question, index) => (
-                <div key={question.id || `overview-${index}`} className="overview-item">
-                  <h3>{question.text}</h3>
-                  <p>{selectedAnswers[index] || 'Not answered'}</p>
-                </div>
-              ))}
-            </div>
-            <div className="overview-actions-wrapper">
-              <div className="overview-actions">
-                <button className="action-button generate" onClick={handleGenerateReport}>Generate Report</button>
-                <button className="action-button reset" onClick={handleReset}>Reset</button>
-                <button className="action-button close" onClick={() => setShowProgramOverview(false)}>Close</button>
-              </div>
-            </div>
+
+            {renderProgramOverview()}
           </div>
         </div>
       )}
-      {showReportSummary && programMetrics && (
-        <div className="report-summary">
-          <h2>Report Summary</h2>
-          {questions.map((question, index) => (
-            <div key={index}>
-              <h3>{question.text}</h3>
-              <p>{selectedAnswers[index]}</p>
-            </div>
-          ))}
-          <h3>Metrics</h3>
-          <p>Estimated Cost: ${programMetrics.estimatedCost}</p>
-        </div>
-      )}
-      {showUserForm && (
-        <div className="user-form-overlay">
-          <div className="user-form-popup">
-            <h2>Almost there!</h2>
-            <p>Please provide your information to generate the report.</p>
-            <form onSubmit={handleUserInfoSubmit}>
-              <input
-                type="text"
-                name="fullName"
-                value={userInfo.fullName}
-                onChange={handleInputChange}
-                placeholder="Full Name"
-                required
-              />
-              <input
-                type="email"
-                name="workEmail"
-                value={userInfo.workEmail}
-                onChange={handleInputChange}
-                placeholder="Work Email"
-                required
-              />
-              <input
-                type="url"
-                name="url"
-                value={userInfo.url}
-                onChange={handleInputChange}
-                placeholder="URL"
-                required
-              />
-              <input
-                type="text"
-                name="revenue"
-                value={userInfo.revenue}
-                onChange={handleInputChange}
-                placeholder="Revenue ($)"
-                required
-              />
-              <input
-                type="text"
-                name="aov"
-                value={userInfo.aov}
-                onChange={handleInputChange}
-                placeholder="AOV - Average Order Value ($)"
-                required
-              />
-              <input
-                type="text"
-                name="ltv"
-                value={userInfo.ltv}
-                onChange={handleInputChange}
-                placeholder="LTV - Lifetime Value ($)"
-                required
-              />
-              <input
-                type="text"
-                name="companyRetentionRate"
-                value={userInfo.companyRetentionRate}
-                onChange={handleInputChange}
-                placeholder="Company Retention Rate (%)"
-                required
-              />
-              <input
-                type="text"
-                name="wholesaleRate"
-                value={userInfo.wholesaleRate}
-                onChange={handleInputChange}
-                placeholder="Wholesale Rate (%)"
-                required
-              />
-              <div className="form-actions">
-                <button type="submit" className="submit-button">Generate Report</button>
-                <button type="button" className="cancel-button" onClick={() => setShowUserForm(false)}>Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 };

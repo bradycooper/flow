@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const mongoose = require('mongoose');
+require('dotenv').config();
+
 const app = express();
 const port = process.env.PORT || 3005;
 
@@ -10,6 +13,38 @@ app.use(express.json());
 // Serve static files from the React app build directory
 app.use(express.static(path.join(__dirname, 'client/build')));
 
+console.log('About to connect to MongoDB Atlas...');
+
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('MongoDB Atlas connected successfully'))
+.catch(err => console.error('MongoDB Atlas connection error:', err));
+
+// Define schemas
+const chatHistorySchema = new mongoose.Schema({
+  question: String,
+  answer: String,
+  timestamp: { type: Date, default: Date.now }
+});
+
+const formQuestionSchema = new mongoose.Schema({
+  id: String,
+  text: String,
+  questionDescription: String,
+  answers: [{
+    name: String,
+    shortDescription: String,
+    longDescription: String
+  }]
+});
+
+// Create models
+const ChatHistory = mongoose.model('ChatHistory', chatHistorySchema);
+const FormQuestion = mongoose.model('FormQuestion', formQuestionSchema);
+
+// Keep the existing questions array
 const questions = [
   {
     id: '1',
@@ -287,7 +322,7 @@ const questions = [
         longDescription: "Customers are entered into a lottery or lucky draw where winners are chosen at random to receive rewards."
       },
       {
-        name: "Random Rewards",
+        name: "Random Intervals",
         shortDescription: "Rewards are given randomly.",
         longDescription: "Rewards are distributed randomly to customers, creating an element of surprise and excitement."
       }
@@ -424,16 +459,51 @@ app.get('/', (req, res) => {
   res.send('Hello from the server!');
 });
 
-// API route
-app.get('/api/questions', (req, res) => {
-  console.log('Sending questions:', JSON.stringify(questions[0], null, 2));
-  res.json(questions);
+// Modify the API route
+app.get('/api/questions', async (req, res) => {
+  try {
+    // First, try to get questions from MongoDB
+    let dbQuestions = await FormQuestion.find();
+    
+    if (dbQuestions.length === 0) {
+      // If no questions in the database, insert the default questions
+      await FormQuestion.insertMany(questions);
+      dbQuestions = questions; // Use the existing questions array
+    }
+    
+    // Send the questions (either from DB or the existing array)
+    res.json(dbQuestions);
+  } catch (error) {
+    console.error('Error fetching questions:', error);
+    // If there's an error with MongoDB, fall back to the existing questions array
+    res.json(questions);
+  }
+});
+
+app.post('/api/chat-history', async (req, res) => {
+  try {
+    const { question, answer } = req.body;
+    const chatEntry = new ChatHistory({ question, answer });
+    await chatEntry.save();
+    res.status(201).json({ message: 'Chat history saved successfully' });
+  } catch (error) {
+    console.error('Error saving chat history:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error:', err);
+});
+
+mongoose.connection.once('open', () => {
+  console.log('MongoDB database connection established successfully');
 });
 
 app.listen(port, () => {

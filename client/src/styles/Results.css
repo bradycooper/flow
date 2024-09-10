@@ -1,0 +1,52 @@
+.results-container {
+  padding: 20px;
+}
+
+.decision-tree-summary {
+  margin-bottom: 20px;
+}
+
+.decision-item {
+  margin-bottom: 15px;
+}
+
+.program-metrics {
+  margin-bottom: 20px;
+}
+
+.variations-highlight {
+  margin-top: 20px;
+}
+
+.variations-box {
+  background-color: #f0f8ff;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.variations-number {
+  font-size: 36px;
+  font-weight: bold;
+  color: #0066cc;
+  margin-bottom: 5px;
+}
+
+.variations-text {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.variations-description {
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+.variations-emphasis {
+  font-style: italic;
+  font-weight: bold;
+  color: #0066cc;
+}
