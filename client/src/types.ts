@@ -19,3 +19,8 @@ export interface ProgramMetrics {
   implementationTime?: string; // Make this optional
   nextSteps?: string[]; // Make this optional
 }
+
+export interface ReportData {
+  decisions: { question: string; answer: string }[];
+  metrics: ProgramMetrics;
+}

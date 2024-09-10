@@ -2,11 +2,11 @@ import React from 'react';
 
 interface ProgramPopupProps {
   decisionTree: any; // Replace 'any' with the actual type of your decision tree
-  onGenerateReport: () => void;
+  onContinueToQuestionnaire: () => void;
   onReset: () => void;
 }
 
-export function ProgramPopup({ decisionTree, onGenerateReport, onReset }: ProgramPopupProps) {
+export function ProgramPopup({ decisionTree, onContinueToQuestionnaire, onReset }: ProgramPopupProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg max-w-2xl">
@@ -22,10 +22,10 @@ export function ProgramPopup({ decisionTree, onGenerateReport, onReset }: Progra
             Reset
           </button>
           <button
-            onClick={onGenerateReport}
+            onClick={onContinueToQuestionnaire}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            Generate My Report
+            Continue to Questionnaire
           </button>
         </div>
       </div>

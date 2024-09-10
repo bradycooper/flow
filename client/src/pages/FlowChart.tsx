@@ -21,7 +21,10 @@ const FlowChart: React.FC = () => {
   const questionDescriptions: { [key: string]: string } = {
     '1': 'Who are you designing your rewards program for? Choose the group of customers or individuals you want to target with your rewards program. Your selection will influence the types of rewards and actions you can incentivize.',
     '2': 'How do customers qualify to participate in your rewards program? Select the criteria that customers must meet in order to join. This could be based on registration, event attendance, or other actions.',
-    // ... add descriptions for all questions
+    '3': 'What type of rewards do you want to offer? Choose the incentives that will motivate your customers to participate in the program. This could include discounts, points, exclusive access, or other perks.',
+    '4': 'How will customers earn rewards? Define the actions or behaviors that will result in rewards for your customers. This could be purchases, referrals, social media engagement, or other activities.',
+    '5': 'How will you structure your reward tiers? Decide on the levels or stages of your rewards program. This could be based on customer loyalty, spending amount, or other criteria.',
+    // ... add descriptions for all remaining questions
   };
 
   useEffect(() => {

@@ -7,8 +7,10 @@
     "postinstall": "cd client && npm install"
   },
   "dependencies": {
+    "@types/react": "^18.3.5",
     "cors": "^2.8.5",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "react": "^18.3.1"
   },
   "proxy": "http://localhost:3005",
   "devDependencies": {
