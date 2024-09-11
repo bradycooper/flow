@@ -466,7 +466,7 @@
 
 .reset-button:hover {
   background-color: #6e6e6e;
-=======
+
 /* Program Overview Popup styles */
 .program-overview-popup {
   background-color: #ffffff;
@@ -648,14 +648,17 @@
 
 .reset-button:hover {
   background-color: #dc2626;
+
 }
 
 .user-form-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+
+  width: 100%;
+  height: 100%;
+
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
@@ -664,6 +667,7 @@
 }
 
 .user-form-popup {
+
   background-color: #ffffff;
   border-radius: 12px;
   padding: 2rem;

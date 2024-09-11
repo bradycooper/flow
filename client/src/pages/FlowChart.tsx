@@ -105,6 +105,7 @@ const FlowChart: React.FC = () => {
     ltv: '',
     aov: '',
   });
+  const [showUserForm, setShowUserForm] = useState(false);
 
 
   const questionDescriptions: { [key: string]: string } = {
@@ -170,6 +171,7 @@ const FlowChart: React.FC = () => {
   };
 
   const handleGenerateReport = async () => {
+    setShowUserForm(true);
     const metrics = await generateProgramMetrics(selectedAnswers);
     const reportUrl = generateReportUrl(questions as any, selectedAnswers, metrics as any);
     window.open(reportUrl, '_blank');
@@ -306,6 +308,15 @@ const FlowChart: React.FC = () => {
           <div className="program-overview-popup">
 
             {renderProgramOverview()}
+          </div>
+        </div>
+      )}
+
+      {showUserForm && (
+        <div className="user-form-overlay">
+          <div className="user-form-popup">
+            {renderUserInfoForm()}
+            <button onClick={() => setShowUserForm(false)}>Close</button>
           </div>
         </div>
       )}
