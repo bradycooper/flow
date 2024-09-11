@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+
 import { generateProgramMetrics } from '../utils/metrics';
 import { generateReportUrl } from '../utils/reportGenerator';
 import '../styles/FlowChart.css';
@@ -25,7 +26,7 @@ type ProgramMetrics = {
   // Remove projectedEngagement as it's not part of the returned metrics
 };
 
-// Add this type definition
+
 type UserInfo = {
   name: string;
   email: string;
@@ -35,6 +36,7 @@ type UserInfo = {
   wholesaleRate: string;
   ltv: string;
   aov: string;
+
 };
 
 // AnswerCard component
@@ -49,6 +51,7 @@ const AnswerCard: React.FC<{
     onClick={!isDisabled ? onSelect : undefined}
   >
     <h3>{answer.name}</h3>
+
     <p className="answer-description">{answer.description}</p>
     <p className="answer-short-description">{answer.shortDescription}</p>
   </div>
@@ -79,6 +82,7 @@ const DecisionTreeSummary: React.FC<{
       })}
     </div>
     <button onClick={onReset} className="reset-button">Reset Configuration</button>
+
   </div>
 );
 
@@ -102,6 +106,7 @@ const FlowChart: React.FC = () => {
     aov: '',
   });
   const [showUserForm, setShowUserForm] = useState(false);
+
 
   const questionDescriptions: { [key: string]: string } = {
     '1': 'Who are you designing your rewards program for? Choose the group of customers or individuals you want to target with your rewards program. Your selection will influence the types of rewards and actions you can incentivize.',
@@ -157,7 +162,7 @@ const FlowChart: React.FC = () => {
       } else {
         // Check if all questions are answered
         if (Object.keys(newSelectedAnswers).length === questions.length) {
-          setShowProgramOverview(true);
+          setShowUserForm(true);
         }
       }
     } catch (error) {
@@ -186,32 +191,20 @@ const FlowChart: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
-  const handleCloseProgramOverview = () => {
-    setShowProgramOverview(false);
-  };
-
   const renderDecisionTree = () => {
-    const halfLength = Math.ceil(questions.length / 2);
     return (
       <div className="decision-tree-container">
         <div className="decision-tree">
           <h2 className="decision-tree-title">Summary</h2>
-          <div className="decision-column">
-            {questions.slice(0, halfLength).map((question, index) => (
-              <div key={question.id || `decision-${index}`} className="decision-tree-item">
-                <span className="question">{question.text}</span>
-                <span className="answer">{selectedAnswers[index] || 'Not answered yet'}</span>
-              </div>
-            ))}
-          </div>
-          <div className="decision-column">
-            {questions.slice(halfLength).map((question, index) => (
-              <div key={question.id || `decision-${index + halfLength}`} className="decision-tree-item">
-                <span className="question">{question.text}</span>
-                <span className="answer">{selectedAnswers[index + halfLength] || 'Not answered yet'}</span>
-              </div>
-            ))}
-          </div>
+          {questions.map((question, index) => (
+            <div 
+              key={question.id || `decision-${index}`} 
+              className={`decision-tree-item ${selectedAnswers[index] ? 'answered' : ''}`}
+            >
+              <span className="question">{question.text}</span>
+              <span className="answer">{selectedAnswers[index] || 'Not answered yet'}</span>
+            </div>
+          ))}
         </div>
         <button onClick={handleReset} className="reset-button">
           Reset
@@ -222,6 +215,7 @@ const FlowChart: React.FC = () => {
 
   const progress = (Object.keys(selectedAnswers).length / questions.length) * 100;
   const hasAnsweredQuestions = Object.keys(selectedAnswers).length > 0;
+
 
   const handleUserInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -255,6 +249,7 @@ const FlowChart: React.FC = () => {
         </div>
       </div>
     );
+
   };
 
   return (
@@ -271,11 +266,7 @@ const FlowChart: React.FC = () => {
       <div className="flow-chart-content">
         {hasAnsweredQuestions && (
           <aside className="summary-sidebar">
-            <DecisionTreeSummary
-              questions={questions}
-              selectedAnswers={selectedAnswers}
-              onReset={handleReset}
-            />
+            {renderDecisionTree()}
           </aside>
         )}
         <main className="main-content">
@@ -315,10 +306,12 @@ const FlowChart: React.FC = () => {
       {showProgramOverview && (
         <div className="program-overview-overlay">
           <div className="program-overview-popup">
+
             {renderProgramOverview()}
           </div>
         </div>
       )}
+
       {showUserForm && (
         <div className="user-form-overlay">
           <div className="user-form-popup">
@@ -327,6 +320,7 @@ const FlowChart: React.FC = () => {
           </div>
         </div>
       )}
+
     </div>
   );
 };
