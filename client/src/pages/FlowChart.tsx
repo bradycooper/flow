@@ -101,6 +101,7 @@ const FlowChart: React.FC = () => {
     ltv: '',
     aov: '',
   });
+  const [showUserForm, setShowUserForm] = useState(false);
 
   const questionDescriptions: { [key: string]: string } = {
     '1': 'Who are you designing your rewards program for? Choose the group of customers or individuals you want to target with your rewards program. Your selection will influence the types of rewards and actions you can incentivize.',
@@ -165,6 +166,7 @@ const FlowChart: React.FC = () => {
   };
 
   const handleGenerateReport = async () => {
+    setShowUserForm(true);
     const metrics = await generateProgramMetrics(selectedAnswers);
     const reportUrl = generateReportUrl(questions as any, selectedAnswers, metrics as any);
     window.open(reportUrl, '_blank');
@@ -314,6 +316,14 @@ const FlowChart: React.FC = () => {
         <div className="program-overview-overlay">
           <div className="program-overview-popup">
             {renderProgramOverview()}
+          </div>
+        </div>
+      )}
+      {showUserForm && (
+        <div className="user-form-overlay">
+          <div className="user-form-popup">
+            {renderUserInfoForm()}
+            <button onClick={() => setShowUserForm(false)}>Close</button>
           </div>
         </div>
       )}
