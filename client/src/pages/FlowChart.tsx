@@ -219,7 +219,7 @@ const FlowChart: React.FC = () => {
                 {question.description && <p>{question.description}</p>}
               </div>
               <div className="answer-column">
-                {question.options.map((option: Answer) => (
+                {Array.isArray(question.options) && question.options.map((option: Answer) => (
                   <AnswerCard
                     key={option.id}
                     answer={option}
