@@ -67,6 +67,16 @@
   width: calc(100% - 320px);
 }
 
+/* Add these styles to ensure content is visible */
+.question-answer-section {
+  display: block;
+  margin-bottom: 20px;
+}
+
+.question-column, .answer-column {
+  display: block;
+}
+
 .question-answer-section {
   background-color: white;
   border-radius: 12px;

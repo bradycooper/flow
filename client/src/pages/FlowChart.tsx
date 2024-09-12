@@ -14,6 +14,7 @@ interface AnswerCardProps {
 }
 
 const AnswerCard: React.FC<AnswerCardProps> = ({ answer, onSelect }) => {
+  console.log('Rendering AnswerCard:', answer);
   return (
     <div className="answer-card" onClick={onSelect}>
       <div className="answer-content">
@@ -137,6 +138,12 @@ const FlowChart: React.FC = () => {
     }
   }, [visibleQuestions]);
 
+  useEffect(() => {
+    if (questions.length > 0) {
+      setVisibleQuestions(1);
+    }
+  }, [questions]);
+
   const fetchQuestions = async () => {
     try {
       const response = await fetch('/api/questions');
@@ -189,6 +196,10 @@ const FlowChart: React.FC = () => {
     return <div>Loading...</div>;
   }
 
+  console.log('Questions:', questions);
+  console.log('Visible Questions:', visibleQuestions);
+  console.log('Answers:', answers);
+
   return (
     <div className="flow-chart-container">
       <div className="fixed-header">
@@ -219,7 +230,7 @@ const FlowChart: React.FC = () => {
                 {question.description && <p>{question.description}</p>}
               </div>
               <div className="answer-column">
-                {Array.isArray(question.options) && question.options.map((option: Answer) => (
+                {question.options && question.options.map((option) => (
                   <AnswerCard
                     key={option.id}
                     answer={option}
