@@ -8,7 +8,7 @@ export function generateReportUrl(
 ): string {
   const decisions = questions.map(question => ({
     question: question.text,
-    answer: question.options.find(option => option.id === answers[question.id])?.name || 'Not answered'
+    answer: question.options.find(option => option.id === answers[question.id])?.text || 'Not answered'
   }));
 
   const reportData = {
