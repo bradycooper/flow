@@ -1,14 +1,15 @@
 export interface Question {
   id: string;
   text: string;
-  questionDescription?: string;
-  answers: Answer[];
+  description?: string;
+  options: Answer[];
 }
 
 export interface Answer {
+  id: string;
   name: string;
-  shortDescription: string;
-  longDescription: string;
+  text: string;
+  description: string;
 }
 
 export interface ProgramMetrics {
@@ -16,11 +17,19 @@ export interface ProgramMetrics {
   potentialRevenue: number;
   roi: number;
   customerRetentionRate: number;
-  implementationTime?: string; // Make this optional
-  nextSteps?: string[]; // Make this optional
+  implementationTime: string; // Change this line
+  nextSteps: string[]; // Change this line
 }
 
 export interface ReportData {
   decisions: { question: string; answer: string }[];
   metrics: ProgramMetrics;
+  userInfo: UserInfo;
+}
+
+export interface UserInfo {
+  name: string;
+  email: string;
+  companyName: string;
+  revenue: string;
 }

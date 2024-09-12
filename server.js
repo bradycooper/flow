@@ -2,10 +2,12 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const mongoose = require('mongoose');
+const NodeCache = require('node-cache');
 require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3005;
+const cache = new NodeCache({ stdTTL: 600 }); // Cache for 10 minutes
 
 app.use(cors());
 app.use(express.json());
@@ -30,7 +32,7 @@ const chatHistorySchema = new mongoose.Schema({
 });
 
 const formQuestionSchema = new mongoose.Schema({
-  id: String,
+  id: { type: String, index: true },
   text: String,
   questionDescription: String,
   answers: [{
@@ -47,410 +49,120 @@ const FormQuestion = mongoose.model('FormQuestion', formQuestionSchema);
 // Keep the existing questions array
 const questions = [
   {
-    id: '1',
-    text: 'Who are you targeting for the program?',
-    questionDescription: 'Who are you designing your rewards program for? Choose the group of customers or individuals you want to target with your rewards program. Your selection will influence the types of rewards and actions you can incentivize.',
-    answers: [
-      {
-        name: 'Old Customer',
-        shortDescription: 'Target your returning customers.',
-        longDescription: 'Create a rewards program focused on retaining and incentivizing your existing customers who have made purchases before.'
-      },
-      {
-        name: 'Influencer',
-        shortDescription: 'Target social media influencers.',
-        longDescription: 'Design a program to engage influencers who can promote your brand through their social media channels.'
-      },
-      {
-        name: 'Affiliate',
-        shortDescription: 'Engage affiliates to promote your products.',
-        longDescription: 'Develop a program for affiliates to help increase product sales by promoting to their own networks.'
-      },
-      {
-        name: 'Collaborative Campaign',
-        shortDescription: 'Reach out to customers from a partner brand.',
-        longDescription: 'Run a joint campaign with another brand to attract their customer base and cross-promote products.'
-      }
+    id: 'qgoal',
+    text: 'What are you looking to accomplish in your business?',
+    options: [
+      { id: '1newCustomers', name: 'New Customer', description: 'Looking to get new customers.' },
+      { id: '1retention', name: 'Increased Retention', description: 'Looking to keep your customers coming back.' },
+      { id: '1socialReach', name: 'More Social Reach', description: 'You want to expand your social reach and get people talking about your brand on social channels.' },
+      { id: '1reviews', name: 'More Reviews', description: 'You\'re looking to get more reviews on your website.' },
+      { id: '1sales', name: 'Increased Sales', description: 'Looking to increase overall sales.' }
     ]
   },
   {
-    id: '2',
-    text: 'What are the qualification criteria?',
-    questionDescription: 'How do customers qualify to participate in your rewards program? Select the criteria that customers must meet in order to join. This could be based on registration, event attendance, or other actions.',
-    answers: [
-      {
-        name: "Free",
-        shortDescription: "Open to all customers without conditions.",
-        longDescription: "No cost or requirements to join the rewards program. Anyone can participate."
-      },
-      {
-        name: "Registration",
-        shortDescription: "Requires sign-up to participate.",
-        longDescription: "Customers must register to join the program and gain access to rewards."
-      },
-      {
-        name: "Lucky Event",
-        shortDescription: "Participation through chance-based events.",
-        longDescription: "Customers join the program by winning or being selected through a random lucky event."
-      },
-      {
-        name: "Event Attendance",
-        shortDescription: "Participation through event attendance.",
-        longDescription: "Customers must attend a specific event to qualify for the rewards program."
-      },
-      {
-        name: "Customer Service Screening",
-        shortDescription: "Customers must go through a service or screening process.",
-        longDescription: "Participation requires customers to engage with customer service or pass a specific screening process."
-      },
-      {
-        name: "Pay to Play",
-        shortDescription: "Requires payment to join the program.",
-        longDescription: "Customers must pay a fee to access rewards and participate in the program."
-      },
-      {
-        name: "Subscribe",
-        shortDescription: "Requires subscription for participation.",
-        longDescription: "Only customers with active subscriptions to your product or service can join the program."
-      },
-      {
-        name: "Invitation Only",
-        shortDescription: "Exclusive participation by invitation.",
-        longDescription: "The program is exclusive, and customers can only join if they receive an invitation from your business."
-      }
+    id: 'q2persona',
+    text: 'Who are you looking to use to accomplish your goals?',
+    options: [
+      { id: '2oldCustomers', name: 'Old Customers', description: 'Create a program targeting customers that might have left your brand.' },
+      { id: '2newCustomers', name: 'New Customers', description: 'Create a program that incentivizes new customers to buy from your brand.' },
+      { id: '2influencers', name: 'Influencers', description: 'A program that helps you incentivize influencers to engage in a social partnership rather than a paid campaign.' },
+      { id: '2affiliates', name: 'Affiliates', description: 'Find people who will help you drive sales by using their influence to get you customers and incentivize them to do that.' },
+      { id: '2segment', name: 'Specific Segment', description: 'Target a specific segment of people who have done a certain thing.' },
+      { id: '2otherBrand', name: 'Other Brand Customers', description: 'Create a collaborative campaign with another brand you know well.' }
     ]
   },
   {
-    id: '3',
-    text: 'What type of reward program do you want to implement?',
-    questionDescription: 'What type of rewards program are you offering? Choose the reward structure that best aligns with your business goals. This could include cashback, loyalty points, or giveaways, depending on the behavior you want to incentivize.',
-    answers: [
-      {
-        name: "Bonus",
-        shortDescription: "Offer bonuses for specific actions.",
-        longDescription: "Customers earn a bonus reward for completing specific actions like purchases, referrals, or event participation."
-      },
-      {
-        name: "Cashback",
-        shortDescription: "Offer cashback on purchases.",
-        longDescription: "Customers earn a percentage of their spending back as cashback, which can be used for future purchases."
-      },
-      {
-        name: "Discount Programs",
-        shortDescription: "Offer discounts on purchases.",
-        longDescription: "Provide customers with discounts on future purchases as part of the rewards program."
-      },
-      {
-        name: "Giveaways",
-        shortDescription: "Run giveaways for participants.",
-        longDescription: "Participants can enter giveaways and have a chance to win rewards such as products, vouchers, or experiences."
-      },
-      {
-        name: "Loyalty Points",
-        shortDescription: "Offer points for each purchase.",
-        longDescription: "Customers earn points for every purchase they make, which can later be redeemed for rewards or discounts."
-      },
-      {
-        name: "Referral/Affiliate Programs",
-        shortDescription: "Reward customers for referring others.",
-        longDescription: "Customers can refer friends, family, or other potential customers to your business and earn rewards when they make a purchase."
-      }
+    id: 'q3requirements',
+    text: 'What are their requirements to qualify for your incentive program?',
+    options: [
+      { id: '3free', name: 'Free', description: 'Let people join your program for free.' },
+      { id: '3register', name: 'Register', description: 'Users must register for your program to qualify.' },
+      { id: '3lucky', name: 'Lucky Event', description: 'Someone hits something lucky that you set to qualify.' },
+      { id: '3attendance', name: 'Event Attendance', description: 'Someone attends an event or webinar to qualify.' },
+      { id: '3customerService', name: 'Customer Service', description: 'Customer service deems the user eligible and allows them to come in. Often forms.' },
+      { id: '3application', name: 'Application', description: 'User applies to join and the brand either qualifies and accepts them or denies them.' },
+      { id: '3pay', name: 'Pay to Play', description: 'The user pays a fee or membership fee to qualify for the program.' },
+      { id: '3subscribe', name: 'Subscribe', description: 'The user must be on a subscription fee or product subscription to qualify for the program.' },
+      { id: '3invitation', name: 'Invitation Only', description: 'The user must be invited and it\'s a private only program.' }
     ]
   },
   {
-    id: '4',
-    text: 'What behavior are you trying to incentivize?',
-    questionDescription: 'What specific behaviors do you want to reward? Select the actions that customers must take to earn rewards, such as making purchases, engaging on social media, or referring others. This will determine the overall goal of your program.',
-    answers: [
-      {
-        name: "Buying",
-        shortDescription: "Reward customers for making purchases.",
-        longDescription: "Customers receive rewards for completing purchases within the program. This encourages buying behavior."
-      },
-      {
-        name: "Repeat Purchasing",
-        shortDescription: "Encourage customers to make repeat purchases.",
-        longDescription: "Offer rewards to customers for consistently returning and making multiple purchases over time."
-      },
-      {
-        name: "Social Media Engagement",
-        shortDescription: "Encourage customers to engage on social media.",
-        longDescription: "Reward customers for posting about your brand on social media, liking, sharing, or creating user-generated content (UGC)."
-      },
-      {
-        name: "Word of Mouth",
-        shortDescription: "Incentivize customers to recommend your brand.",
-        longDescription: "Reward customers for spreading the word about your brand to their network through personal recommendations."
-      },
-      {
-        name: "Affiliate Participation",
-        shortDescription: "Encourage participation in affiliate marketing.",
-        longDescription: "Provide rewards to affiliates who successfully promote your products and generate sales."
-      },
-      {
-        name: "Creating Reviews and UGC",
-        shortDescription: "Reward for generating reviews and content.",
-        longDescription: "Encourage customers to leave reviews or create user-generated content (UGC) that promotes your product or brand."
-      },
-      {
-        name: "Subscribing/Renewals",
-        shortDescription: "Incentivize subscriptions and renewals.",
-        longDescription: "Offer rewards to customers who subscribe to your service or renew their subscriptions for ongoing benefits."
-      },
-      {
-        name: "Attendance",
-        shortDescription: "Encourage event attendance.",
-        longDescription: "Reward customers for attending specific events hosted by your brand, either virtually or in-person."
-      },
-      {
-        name: "Milestones",
-        shortDescription: "Reward customers for reaching milestones.",
-        longDescription: "Provide rewards for customers who achieve specific milestones such as purchasing anniversaries or spending goals."
-      },
-      {
-        name: "Feedback",
-        shortDescription: "Incentivize customer feedback.",
-        longDescription: "Encourage customers to provide feedback on your products or services in exchange for rewards."
-      }
+    id: 'q4behavior',
+    text: 'What is the behavior that you\'re looking to incentivize?',
+    options: [
+      { id: '4purchase', name: 'Purchasing', description: 'Get the user to purchase product.' },
+      { id: '4repeatPurchase', name: 'Repeat Purchasing', description: 'Get the user to purchase beyond 1 time.' },
+      { id: '4smEngagement', name: 'Social Media Engagement', description: 'Get the user to be engaged on social media.' },
+      { id: '4woM', name: 'Word of Mouth', description: 'Get the user to spread the word via word of mouth.' },
+      { id: '4affiliateParticipation', name: 'Affiliate Participation', description: 'Get someone to drive the action for you and reward them for it.' },
+      { id: '4reviews', name: 'Reviews', description: 'Get the user to give you more reviews for products, programs, or even the brand.' },
+      { id: '4ugc', name: 'UGC', description: 'Get people to create content about your brand and products for you.' },
+      { id: '4subscriptions', name: 'Subscriptions', description: 'Get users to get on subscription.' },
+      { id: '4attendance', name: 'Attendance', description: 'Get users to attend an event.' },
+      { id: '4milestone', name: 'Milestones', description: 'Get users to achieve a specified milestone.' },
+      { id: '4challenges', name: 'Challenges', description: 'Get users to accomplish a specific challenge.' },
+      { id: '4status', name: 'Status', description: 'Get users to unlock a certain status.' },
+      { id: '4npsScore', name: 'NPS Score', description: 'Get users to give you feedback on your brand.' }
     ]
   },
   {
-    id: '5',
-    text: 'What types of rewards do you want to offer?',
-    questionDescription: 'What rewards will customers receive? Choose the type of reward you want to offer participants in your program. This could include cash, points, exclusive offers, or special treatment, depending on what best motivates your customers.',
-    answers: [
-      {
-        name: "Cash",
-        shortDescription: "Reward with cash or equivalent.",
-        longDescription: "Customers earn a cash reward based on their activity in the program, which can be redeemed or used for future purchases."
-      },
-      {
-        name: "Credits/Points",
-        shortDescription: "Reward with points that can be redeemed.",
-        longDescription: "Customers earn points for their actions, which can be accumulated and redeemed for various rewards, including discounts or products."
-      },
-      {
-        name: "Gift Cards",
-        shortDescription: "Offer gift cards as rewards.",
-        longDescription: "Customers can earn gift cards that can be redeemed at your store or through partner merchants."
-      },
-      {
-        name: "Recognition",
-        shortDescription: "Offer non-monetary rewards like recognition.",
-        longDescription: "Reward customers with recognition, such as highlighting them as a top customer or featuring them in your community."
-      },
-      {
-        name: "Shipping/Fees",
-        shortDescription: "Waive shipping fees or other service fees.",
-        longDescription: "Customers receive free shipping or waived service fees as a reward for their participation."
-      },
-      {
-        name: "Exclusive Offers",
-        shortDescription: "Offer exclusive deals and discounts.",
-        longDescription: "Customers receive access to exclusive discounts or offers only available to program members."
-      },
-      {
-        name: "Products",
-        shortDescription: "Offer free or discounted products.",
-        longDescription: "Provide customers with free or discounted products as a reward for their participation in the program."
-      },
-      {
-        name: "Special Treatment - Exclusivity",
-        shortDescription: "Offer exclusive access or superior service.",
-        longDescription: "Customers can receive special treatment, such as exclusive access to events or priority customer service."
-      }
+    id: 'q5Timing',
+    text: 'When are users going to earn that reward?',
+    options: [
+      { id: '5immediate', name: 'Immediate', description: 'Users unlock the reward immediately after completing the behavior.' },
+      { id: '5secondBehavior', name: 'Second Behavior', description: 'After the user performs a behavior for a second time.' },
+      { id: '5timed', name: 'Timed', description: 'A time period after the user completes the behavior.' },
+      { id: '5position', name: 'Position Based', description: 'Based on their position relative to the other qualified participants.' },
+      { id: '5random', name: 'Random', description: 'A random user who completed the behavior will win.' }
     ]
   },
   {
-    id: '6',
-    text: 'How do customers earn rewards?',
-    questionDescription: 'How will customers earn rewards? Select the method through which customers will qualify for rewards. This could be based on purchases, participation in contests, referrals, or social media engagement.',
-    answers: [
-      {
-        name: "Purchase Patterns",
-        shortDescription: "Rewards based on purchase patterns.",
-        longDescription: "Customers earn rewards based on the number of purchases made. This could be measured by various factors such as purchase amount, frequency, or size of the order."
-      },
-      {
-        name: "Purchase Amount",
-        shortDescription: "Rewards based on purchase amount.",
-        longDescription: "Rewards are given depending on the total value of a customer's purchase. Higher purchase amounts may lead to better rewards."
-      },
-      {
-        name: "Purchase Frequency",
-        shortDescription: "Rewards based on how often customers purchase.",
-        longDescription: "Rewards are based on how often a customer makes a purchase, encouraging repeat visits."
-      },
-      {
-        name: "Time-Based",
-        shortDescription: "Rewards based on specific time periods.",
-        longDescription: "Customers earn rewards by purchasing within a specific time window, such as during promotions or peak seasons."
-      },
-      {
-        name: "Purchase Size",
-        shortDescription: "Rewards based on the size of the purchase.",
-        longDescription: "Rewards are tied to the quantity or size of a single order, encouraging larger purchases."
-      },
-      {
-        name: "Contests",
-        shortDescription: "Rewards given through contests.",
-        longDescription: "Customers participate in contests to win rewards, typically requiring them to perform specific tasks or enter a drawing."
-      },
-      {
-        name: "Gamification",
-        shortDescription: "Incentivize participation through games.",
-        longDescription: "Use game-like features such as points, levels, and badges to engage customers and reward them for their actions."
-      },
-      {
-        name: "Loyalty Duration",
-        shortDescription: "Rewards based on how long customers stay loyal.",
-        longDescription: "Customers are rewarded for remaining loyal to the brand over time, often based on milestones or membership duration."
-      },
-      {
-        name: "Referrals",
-        shortDescription: "Reward for referring new customers.",
-        longDescription: "Customers earn rewards by referring friends, family, or new customers to the brand."
-      },
-      {
-        name: "Social Media Engagement",
-        shortDescription: "Rewards for social media posts.",
-        longDescription: "Customers earn rewards by posting about the brand on social media or creating user-generated content."
-      },
-      {
-        name: "Lottery",
-        shortDescription: "Random rewards through a lottery system.",
-        longDescription: "Customers are entered into a lottery or lucky draw where winners are chosen at random to receive rewards."
-      },
-      {
-        name: "Random Intervals",
-        shortDescription: "Rewards are given randomly.",
-        longDescription: "Rewards are distributed randomly to customers, creating an element of surprise and excitement."
-      }
+    id: 'q6rewardType',
+    text: 'What is the reward type that they\'re going to get for completing the behavior?',
+    options: [
+      { id: '6cash', name: 'Cash', description: 'The user will earn real cash for completing the behavior.' },
+      { id: '6credits', name: 'Credits', description: 'The user will earn credits that they can use for product at your brand.' },
+      { id: '6giftCards', name: 'Gift Cards', description: 'The user will earn gift cards that they can use at your store.' },
+      { id: '6oBCredits', name: 'Other Brand Credit', description: 'The user will earn credits to other brands you work with.' },
+      { id: '6freeShipping', name: 'Free Shipping', description: 'The user gets free shipping on an order.' },
+      { id: '6specialPricing', name: 'Special Pricing', description: 'The user gets special pricing for completing the behavior.' },
+      { id: '6exclusiveOffers', name: 'Exclusive Offers', description: 'The user gets a special offer.' },
+      { id: '6earlyAccess', name: 'Early Access', description: 'The user gets early access to certain events or sales.' },
+      { id: '6status', name: 'Status', description: 'The user unlocks a certain status or rank.' }
     ]
   },
   {
-    id: '7',
-    text: 'How much do customers earn?',
-    questionDescription: 'How will the reward amount be calculated? Choose how much customers will earn based on their actions. Rewards can be a fixed amount, a percentage of their purchase, or based on performance or tier levels.',
-    answers: [
-      {
-        name: "Fixed Value",
-        shortDescription: "Reward a fixed value for participation.",
-        longDescription: "Customers earn a set, fixed amount for completing the desired action. This amount does not change regardless of performance or status."
-      },
-      {
-        name: "Fixed Percentage",
-        shortDescription: "Reward a fixed percentage.",
-        longDescription: "Customers earn a percentage of their total purchase amount as a reward. This is common in cashback or discount programs."
-      },
-      {
-        name: "Performance-Based",
-        shortDescription: "Rewards change based on performance.",
-        longDescription: "The reward value changes depending on the customer's performance, such as how much they spend or how many referrals they make."
-      },
-      {
-        name: "Tiered Rewards",
-        shortDescription: "Rewards increase with higher tiers.",
-        longDescription: "Customers can earn tiered rewards, where they receive better rewards for reaching higher levels of spending, referrals, or loyalty status."
-      }
+    id: 'q7calculations',
+    text: 'How is the reward calculated?',
+    options: [
+      { id: '7fixedAmount', name: 'Fixed Amount', description: 'The reward is calculated as a fixed amount when they complete the action.' },
+      { id: '7fixedPercent', name: 'Fixed Percent', description: 'The reward is a fixed % of the calculation method.' },
+      { id: '7performanceBased', name: 'Performance Based', description: 'The reward is performance based on certain metrics to ensure you get the results you want and they get the results they want.' },
+      { id: '7tiered', name: 'Tiered', description: 'A tiered program where your status or tier determines your rewards.' }
     ]
   },
   {
-    id: '8',
-    text: 'When do customers receive their rewards?',
-    questionDescription: 'When will customers receive their rewards? Decide when customers can redeem their rewards. This could be immediately after completing an action, during subsequent purchases, or within a specific time frame.',
-    answers: [
-      {
-        name: "Immediate",
-        shortDescription: "Customers get the reward immediately.",
-        longDescription: "Customers can redeem their reward as soon as they complete the required action, such as after making a purchase or referring a friend."
-      },
-      {
-        name: "Future Purchase",
-        shortDescription: "Rewards are applied to future purchases.",
-        longDescription: "Customers earn rewards that can only be redeemed on future purchases, encouraging return business."
-      },
-      {
-        name: "Time-Limited Claim",
-        shortDescription: "Rewards must be claimed within a certain time.",
-        longDescription: "Customers must redeem their rewards within a specified time frame, or the reward will expire."
-      },
-      {
-        name: "Limited-Time Offer",
-        shortDescription: "Offer valid for a short time.",
-        longDescription: "Customers must act within a limited time to redeem the reward or participate in the offer."
-      },
-      {
-        name: "Expiration Date",
-        shortDescription: "Rewards have a set expiration date.",
-        longDescription: "Rewards must be redeemed before their expiration date; otherwise, they will no longer be valid."
-      },
-      {
-        name: "First-Come-First-Served",
-        shortDescription: "Rewards for being among the first.",
-        longDescription: "Rewards are given to the first or specific number of customers who complete an action, such as the first 100 purchasers or the 10th visitor."
-      },
-      {
-        name: "Random Intervals",
-        shortDescription: "Rewards are given at random intervals.",
-        longDescription: "Customers receive rewards randomly, either after purchases or during specific times, adding an element of surprise."
-      }
+    id: 'q8earningPeriods',
+    text: 'How many times can they earn the reward or how frequently can they earn the reward?',
+    options: [
+      { id: '8oneTime', name: 'One Time', description: 'The user can earn the reward one time.' },
+      { id: '8weekly', name: 'Weekly', description: 'The user can earn the reward once a week.' },
+      { id: '8monthly', name: 'Monthly', description: 'The user can earn the reward once a month.' },
+      { id: '8nTimes', name: 'n Number of Times', description: 'The user can earn the rewards a certain number of times.' },
+      { id: '8unlimited', name: 'Unlimited', description: 'The user can earn the reward an unlimited amount of times.' }
     ]
   },
   {
-    id: '9',
-    text: 'What status levels are available in the program?',
-    questionDescription: 'Does the program offer any special status for customers? Select if your program will recognize certain customers with VIP status, special treatment, or advanced notice for events and offers.',
-    answers: [
-      {
-        name: "No Status",
-        shortDescription: "No status recognition.",
-        longDescription: "The program does not include any status levels or VIP recognition for customers."
-      },
-      {
-        name: "VIP Status",
-        shortDescription: "Recognize customers with VIP status.",
-        longDescription: "Customers who reach certain milestones or spend thresholds can achieve VIP status and receive exclusive rewards or recognition."
-      },
-      {
-        name: "Special Treatment",
-        shortDescription: "Offer special treatment to top customers.",
-        longDescription: "Customers receive special treatment such as personalized offers, concierge service, or exclusive event invitations."
-      },
-      {
-        name: "Advanced Notice",
-        shortDescription: "Offer advanced notice of offers and events.",
-        longDescription: "Customers with higher status receive advanced notice of upcoming sales, exclusive events, or product releases before the general public."
-      }
+    id: 'q9beneficiary',
+    text: 'Who is the person going to receive the reward?',
+    options: [
+      { id: '9user', name: 'User', description: 'The person who completed the behavior.' },
+      { id: '9customer', name: 'Customer', description: 'The customer who completed the behavior.' },
+      { id: '9specified', name: 'Specified Beneficiary', description: 'The beneficiary of the reward is specified beforehand.' },
+      { id: '9companyCause', name: 'Company Cause', description: 'The reward goes to a cause specified by the company.' },
+      { id: '9charity', name: 'Charity', description: 'The reward goes to a specified charity.' },
+      { id: '9other', name: 'Other', description: 'The reward goes to someone other than any of the options.' }
     ]
-  },
-  {
-    id: '10',
-    text: 'Who receives the rewards?',
-    questionDescription: 'Who will receive the reward? Choose who the beneficiary of the reward will be. The reward can go to the customer who completes the action, a charity, or another individual chosen by the customer.',
-    answers: [
-      {
-        name: "Customer",
-        shortDescription: "The customer who completes the action earns the reward.",
-        longDescription: "The consumer who performs the specified action, such as making a purchase or referring a friend, receives the reward."
-      },
-      {
-        name: "Chosen Beneficiary",
-        shortDescription: "The reward goes to a person of the customer's choosing.",
-        longDescription: "The customer can choose a specified beneficiary, such as a family member or friend, to receive the reward instead of themselves."
-      },
-      {
-        name: "Company-Supported Cause",
-        shortDescription: "The reward goes to a cause supported by the company.",
-        longDescription: "The reward is donated to a company-supported cause or charity, benefiting a larger social or community goal."
-      },
-      {
-        name: "Customer-Chosen Charity",
-        shortDescription: "The customer can donate the reward to a charity.",
-        longDescription: "The customer can choose a charity to receive the reward, donating the reward amount to the chosen charity."
-      }
-    ]
-    
   }
 ];
 
@@ -462,21 +174,23 @@ app.get('/', (req, res) => {
 // Modify the API route
 app.get('/api/questions', async (req, res) => {
   try {
-    // First, try to get questions from MongoDB
-    let dbQuestions = await FormQuestion.find();
+    const cachedQuestions = cache.get('questions');
+    if (cachedQuestions) {
+      return res.json(cachedQuestions);
+    }
+
+    let dbQuestions = await FormQuestion.find().lean();
     
     if (dbQuestions.length === 0) {
-      // If no questions in the database, insert the default questions
       await FormQuestion.insertMany(questions);
-      dbQuestions = questions; // Use the existing questions array
+      dbQuestions = questions;
     }
     
-    // Send the questions (either from DB or the existing array)
+    cache.set('questions', dbQuestions);
     res.json(dbQuestions);
   } catch (error) {
     console.error('Error fetching questions:', error);
-    // If there's an error with MongoDB, fall back to the existing questions array
-    res.json(questions);
+    res.json(questions); // Fallback to hardcoded questions if there's an error
   }
 });
 
@@ -507,7 +221,7 @@ mongoose.connection.once('open', () => {
 });
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`Server running on http://localhost:${port}`);
 }).on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
     console.error(`Error: Port ${port} is already in use. Please free up port ${port} or choose a different port.`);

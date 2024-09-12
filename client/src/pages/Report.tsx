@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ProgramMetrics } from '../types';
+import { ProgramMetrics, ReportData, UserInfo } from '../types';
 import '../styles/Report.css';
 import '../styles/FlowChart.css';
-
-interface ReportData {
-  decisions: { question: string; answer: string }[];
-  metrics: ProgramMetrics;
-}
 
 interface MetricsAnalysisProps {
   withoutKwikCost: number;
@@ -218,6 +213,7 @@ const VariationsHighlight: React.FC = () => {
 
 const Report: React.FC = () => {
   const [reportData, setReportData] = useState<ReportData | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -227,12 +223,22 @@ const Report: React.FC = () => {
       try {
         const decodedData: ReportData = JSON.parse(decodeURIComponent(encodedData));
         console.log('Decoded data:', decodedData);
+        if (!decodedData.decisions || !Array.isArray(decodedData.decisions)) {
+          throw new Error('Invalid report data format');
+        }
         setReportData(decodedData);
       } catch (error) {
         console.error('Error parsing report data:', error);
+        setError('Failed to load report data. Please try again.');
       }
+    } else {
+      setError('No report data found. Please complete the questionnaire.');
     }
   }, [location]);
+
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
 
   if (!reportData) {
     return <div className="loading">Loading report...</div>;
@@ -251,7 +257,7 @@ const Report: React.FC = () => {
           kwikSuccessScore={calculateKwikSuccessScore(reportData)}
         />
         
-        <VariationsHighlight />  {/* Add this line */}
+        <VariationsHighlight />
         
         <section className="program-details">
           <h2>Program Details</h2>
@@ -266,13 +272,9 @@ const Report: React.FC = () => {
         </section>
         
         <AISummary programData={reportData} />
-        
         <MarketingStrategy programData={reportData} />
-        
         <ThingsToConsider programData={reportData} />
-        
         <NextSteps programData={reportData} />
-        
         <DoItWithKwik programData={reportData} />
       </main>
     </div>

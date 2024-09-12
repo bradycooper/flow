@@ -1,326 +1,243 @@
 import React, { useState, useEffect, useRef } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 import { generateProgramMetrics } from '../utils/metrics';
 import { generateReportUrl } from '../utils/reportGenerator';
 import '../styles/FlowChart.css';
 import { FaRocket, FaUndo, FaTimes } from 'react-icons/fa';
+import { Question, Answer, UserInfo, ProgramMetrics } from '../types';
 
-// Define types locally to avoid conflicts
-type Question = {
-  id: string;
-  text: string;
-  answers: Answer[];
-  questionDescription?: string;
-};
+// Remove the declare module statements
 
-type Answer = {
-  name: string;
-  description: string;
-  shortDescription: string;
-  longDescription: string;
-};
-
-// Update the ProgramMetrics type to match the one from utils/metrics
-type ProgramMetrics = {
-  estimatedCost: number;
-  // Remove projectedEngagement as it's not part of the returned metrics
-};
-
-
-type UserInfo = {
-  name: string;
-  email: string;
-  companyUrl: string;
-  revenue: string;
-  retentionRate: string;
-  wholesaleRate: string;
-  ltv: string;
-  aov: string;
-
-};
-
-// AnswerCard component
-const AnswerCard: React.FC<{
+interface AnswerCardProps {
   answer: Answer;
-  isSelected: boolean;
-  isDisabled: boolean;
   onSelect: () => void;
-}> = ({ answer, isSelected, isDisabled, onSelect }) => (
-  <div
-    className={`answer-card ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
-    onClick={!isDisabled ? onSelect : undefined}
-  >
-    <h3>{answer.name}</h3>
+}
 
-    <p className="answer-description">{answer.description}</p>
-    <p className="answer-short-description">{answer.shortDescription}</p>
-  </div>
-);
+const AnswerCard: React.FC<AnswerCardProps> = ({ answer, onSelect }) => {
+  return (
+    <div className="answer-card" onClick={onSelect}>
+      <div className="answer-content">
+        <h3 className="answer-title">{answer.name}</h3>
+        {answer.description && <p className="answer-description">{answer.description}</p>}
+      </div>
+    </div>
+  );
+};
 
-// DecisionTreeSummary component
 const DecisionTreeSummary: React.FC<{
   questions: Question[];
-  selectedAnswers: {[key: number]: string};
+  selectedAnswers: {[key: string]: string};
   onReset: () => void;
-}> = ({ questions, selectedAnswers, onReset }) => (
-  <div className="decision-tree-summary">
-    <h2>Program Configuration</h2>
-    <div className="tech-summary">
-      {questions.map((question, index) => {
-        const selectedAnswerName = selectedAnswers[index];
-        if (!selectedAnswerName) return null;
-        const selectedAnswer = question.answers.find(a => a.name === selectedAnswerName);
-        return (
-          <div key={question.id || `decision-${index}`} className="config-item">
-            <span className="config-key">{`${index + 1}. ${question.text}`}</span>
-            <span className="config-value">{selectedAnswerName}</span>
-            {selectedAnswer && (
-              <span className="config-description">{selectedAnswer.shortDescription}</span>
-            )}
-          </div>
-        );
-      })}
+}> = ({ questions, selectedAnswers, onReset }) => {
+  const answeredQuestions = questions.filter(question => selectedAnswers[question.id]);
+
+  return (
+    <div className="decision-tree-container">
+      <h2 className="decision-tree-title">Your Selections</h2>
+      {answeredQuestions.map((question) => (
+        <div key={question.id} className="decision-tree-item">
+          <span className="question">{question.text}</span>
+          <span className="answer">
+            {question.options.find(option => option.id === selectedAnswers[question.id])?.name}
+          </span>
+        </div>
+      ))}
+      {answeredQuestions.length > 0 && (
+        <button className="reset-button" onClick={onReset}>
+          <FaUndo /> Reset All
+        </button>
+      )}
     </div>
-    <button onClick={onReset} className="reset-button">Reset Configuration</button>
+  );
+};
 
-  </div>
-);
-
-// Main FlowChart component
-const FlowChart: React.FC = () => {
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<{[key: number]: string}>({});
-  const [showProgramOverview, setShowProgramOverview] = useState(false);
-  const [showReportSummary, setShowReportSummary] = useState(false);
-  const [programMetrics, setProgramMetrics] = useState<ProgramMetrics | null>(null);
-  const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
+const UserInfoForm: React.FC<{
+  onSubmit: (userInfo: UserInfo) => void;
+  onClose: () => void;
+}> = ({ onSubmit, onClose }) => {
   const [userInfo, setUserInfo] = useState<UserInfo>({
     name: '',
     email: '',
-    companyUrl: '',
+    companyName: '',
     revenue: '',
-    retentionRate: '',
-    wholesaleRate: '',
-    ltv: '',
-    aov: '',
   });
-  const [showUserForm, setShowUserForm] = useState(false);
 
-
-  const questionDescriptions: { [key: string]: string } = {
-    '1': 'Who are you designing your rewards program for? Choose the group of customers or individuals you want to target with your rewards program. Your selection will influence the types of rewards and actions you can incentivize.',
-    '2': 'How do customers qualify to participate in your rewards program? Select the criteria that customers must meet in order to join. This could be based on registration, event attendance, or other actions.',
-    '3': 'What type of rewards do you want to offer? Choose the incentives that will motivate your customers to participate in the program. This could include discounts, points, exclusive access, or other perks.',
-    '4': 'How will customers earn rewards? Define the actions or behaviors that will result in rewards for your customers. This could be purchases, referrals, social media engagement, or other activities.',
-    '5': 'How will you structure your reward tiers? Decide on the levels or stages of your rewards program. This could be based on customer loyalty, spending amount, or other criteria.',
-    // ... add descriptions for all remaining questions
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserInfo({ ...userInfo, [e.target.name]: e.target.value });
   };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(userInfo);
+  };
+
+  return (
+    <div className="user-info-overlay">
+      <div className="user-info-popup">
+        <h2>Almost there!</h2>
+        <p>Please provide some information to generate your report.</p>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="name"
+            placeholder="Your Name"
+            value={userInfo.name}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Your Email"
+            value={userInfo.email}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="text"
+            name="companyName"
+            placeholder="Company Name"
+            value={userInfo.companyName}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="text"
+            name="revenue"
+            placeholder="Annual Revenue"
+            value={userInfo.revenue}
+            onChange={handleChange}
+            required
+          />
+          <div className="form-actions">
+            <button type="submit">Generate Report</button>
+            <button type="button" onClick={onClose}>Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+const FlowChart: React.FC = () => {
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [answers, setAnswers] = useState<{[key: string]: string}>({});
+  const [visibleQuestions, setVisibleQuestions] = useState<number>(1);
+  const [showUserInfoForm, setShowUserInfoForm] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchQuestions();
   }, []);
 
   useEffect(() => {
-    console.log('Questions in state:', questions);
-    console.log('First question description in state:', questions[0]?.questionDescription);
-  }, [questions]);
+    if (visibleQuestions > 1) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [visibleQuestions]);
 
-  async function fetchQuestions() {
+  const fetchQuestions = async () => {
     try {
-      const response = await fetch('http://localhost:3005/api/questions');
+      const response = await fetch('/api/questions');
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error || 'Unknown error'}`);
       }
       const data = await response.json();
-      const updatedData = data.map((question: Question) => ({
-        ...question,
-        questionDescription: questionDescriptions[question.id as string] || 'No description available'
-      }));
-      console.log('Updated data:', updatedData);
-      setQuestions(updatedData);
-      questionRefs.current = updatedData.map(() => null);
+      console.log('Fetched questions:', data);
+      setQuestions(data);
     } catch (error) {
       console.error('Error fetching questions:', error);
-    }
-  }
-
-  const handleAnswerSelect = async (questionIndex: number, answerName: string): Promise<void> => {
-    try {
-      const newSelectedAnswers = { ...selectedAnswers, [questionIndex]: answerName };
-      setSelectedAnswers(newSelectedAnswers);
-      
-      const nextQuestionIndex = questionIndex + 1;
-      if (nextQuestionIndex < questions.length) {
-        setCurrentQuestionIndex(nextQuestionIndex);
-        
-        await new Promise(resolve => setTimeout(resolve, 100));
-        const nextQuestion = questionRefs.current[nextQuestionIndex];
-        if (nextQuestion) {
-          nextQuestion.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      } else {
-        // Check if all questions are answered
-        if (Object.keys(newSelectedAnswers).length === questions.length) {
-          setShowUserForm(true);
-        }
-      }
-    } catch (error) {
-      console.error('Error in handleAnswerSelect:', error);
+      // Optionally, set some error state here to show an error message to the user
     }
   };
 
-  const handleGenerateReport = async () => {
-    setShowUserForm(true);
-    const metrics = await generateProgramMetrics(selectedAnswers);
-    const reportUrl = generateReportUrl(questions as any, selectedAnswers, metrics as any);
-    window.open(reportUrl, '_blank');
-    setShowReportSummary(true);
-    
-    setProgramMetrics({
-      estimatedCost: metrics.estimatedCost,
-    });
+  const handleAnswer = (questionId: string, answerId: string) => {
+    setAnswers({ ...answers, [questionId]: answerId });
+    if (visibleQuestions < questions.length) {
+      setVisibleQuestions(visibleQuestions + 1);
+    } else {
+      setShowUserInfoForm(true);
+    }
   };
 
   const handleReset = () => {
-    setSelectedAnswers({});
-    setCurrentQuestionIndex(0);
-    setShowProgramOverview(false);
-    setShowReportSummary(false);
-    setProgramMetrics(null);
-    window.scrollTo(0, 0);
+    setAnswers({});
+    setVisibleQuestions(1);
+    setShowUserInfoForm(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const renderDecisionTree = () => {
-    return (
-      <div className="decision-tree-container">
-        <div className="decision-tree">
-          <h2 className="decision-tree-title">Summary</h2>
-          {questions.map((question, index) => (
-            <div 
-              key={question.id || `decision-${index}`} 
-              className={`decision-tree-item ${selectedAnswers[index] ? 'answered' : ''}`}
-            >
-              <span className="question">{question.text}</span>
-              <span className="answer">{selectedAnswers[index] || 'Not answered yet'}</span>
-            </div>
-          ))}
-        </div>
-        <button onClick={handleReset} className="reset-button">
-          Reset
-        </button>
-      </div>
-    );
+  const handleUserInfoSubmit = (userInfo: UserInfo) => {
+    const metrics = generateProgramMetrics(answers, userInfo);
+    const reportUrl = generateReportUrl(answers, metrics, userInfo, questions);
+    navigate(reportUrl);
   };
 
-  const progress = (Object.keys(selectedAnswers).length / questions.length) * 100;
-  const hasAnsweredQuestions = Object.keys(selectedAnswers).length > 0;
+  const progress = (Object.keys(answers).length / questions.length) * 100;
 
+  const isQuizComplete = Object.keys(answers).length === questions.length;
 
-  const handleUserInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setUserInfo(prevInfo => ({ ...prevInfo, [name]: value }));
+  const handleCompletion = () => {
+    // Add any completion logic here, such as showing results or navigating to a new page
+    console.log("Quiz completed!");
+    // You can add navigation or show a modal here
   };
 
-  const renderUserInfoForm = () => (
-    <div className="user-info-form">
-      <h3>Company Information</h3>
-      <input type="text" name="name" placeholder="Name" value={userInfo.name} onChange={handleUserInfoChange} />
-      <input type="email" name="email" placeholder="Email" value={userInfo.email} onChange={handleUserInfoChange} />
-      <input type="url" name="companyUrl" placeholder="Company URL" value={userInfo.companyUrl} onChange={handleUserInfoChange} />
-      <input type="number" name="revenue" placeholder="Revenue ($)" value={userInfo.revenue} onChange={handleUserInfoChange} />
-      <input type="number" name="retentionRate" placeholder="Retention Rate (%)" min="0" max="100" step="0.1" value={userInfo.retentionRate} onChange={handleUserInfoChange} />
-      <input type="number" name="wholesaleRate" placeholder="Wholesale Rate (%)" min="0" max="100" step="0.1" value={userInfo.wholesaleRate} onChange={handleUserInfoChange} />
-      <input type="number" name="ltv" placeholder="LTV ($)" value={userInfo.ltv} onChange={handleUserInfoChange} />
-      <input type="number" name="aov" placeholder="AOV ($)" value={userInfo.aov} onChange={handleUserInfoChange} />
-    </div>
-  );
-
-  const renderProgramOverview = () => {
-    return (
-      <div className="program-overview-content">
-        <h2>Your Program Is Almost Ready!</h2>
-        <p>Fill out some more information to get a full report.</p>
-        {renderUserInfoForm()}
-        <div className="overview-actions">
-          <button onClick={handleGenerateReport}><FaRocket /> Generate Report</button>
-          <button onClick={handleReset}><FaUndo /> Reset</button>
-          <button onClick={() => setShowProgramOverview(false)}><FaTimes /> Close</button>
-        </div>
-      </div>
-    );
-
-  };
+  if (questions.length === 0) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flow-chart-container">
-      <header className="hero-section">
-        <h1>Reward Program Flow Chart</h1>
+      <div className="fixed-header">
+        <h1>Program Recommendation Tool</h1>
         <div className="progress-container">
           <div className="progress-bar">
             <div className="progress" style={{ width: `${progress}%` }}></div>
           </div>
-          <p className="progress-text">{`Question ${Object.keys(selectedAnswers).length} of ${questions.length}`}</p>
+          <div className="progress-text">{`${Object.keys(answers).length} of ${questions.length}`}</div>
         </div>
-      </header>
+      </div>
       <div className="flow-chart-content">
-        {hasAnsweredQuestions && (
-          <aside className="summary-sidebar">
-            {renderDecisionTree()}
-          </aside>
-        )}
-        <main className="main-content">
-          {questions.map((question, index) => (
-            <div 
-              key={question.id || `question-${index}`}
-              className={`question-answer-section ${index === currentQuestionIndex ? 'current' : index < currentQuestionIndex ? 'previous' : 'hidden'}`}
-              ref={el => questionRefs.current[index] = el}
+        <div className="summary-sidebar">
+          <DecisionTreeSummary
+            questions={questions}
+            selectedAnswers={answers}
+            onReset={handleReset}
+          />
+        </div>
+        <div className="main-content">
+          {questions.slice(0, visibleQuestions).map((question, index) => (
+            <div
+              key={question.id}
+              className={`question-answer-section ${answers[question.id] ? 'answered' : ''}`}
             >
               <div className="question-column">
-                <h2 className="question-text">{question.text}</h2>
-                {question.questionDescription ? (
-                  <p className="question-description">
-                    {question.questionDescription}
-                  </p>
-                ) : (
-                  <p className="question-description">
-                    No description available (Debug: {JSON.stringify(question)})
-                  </p>
-                )}
+                <h2>{question.text}</h2>
+                {question.description && <p>{question.description}</p>}
               </div>
               <div className="answer-column">
-                {question.answers.map((answer: Answer) => (
+                {question.options.map((option: Answer) => (
                   <AnswerCard
-                    key={answer.name}
-                    answer={answer}
-                    isSelected={selectedAnswers[index] === answer.name}
-                    isDisabled={index !== currentQuestionIndex}
-                    onSelect={() => handleAnswerSelect(index, answer.name)}
+                    key={option.id}
+                    answer={option}
+                    onSelect={() => handleAnswer(question.id, option.id)}
                   />
                 ))}
               </div>
             </div>
           ))}
-        </main>
+          <div ref={bottomRef} />
+        </div>
       </div>
-      {showProgramOverview && (
-        <div className="program-overview-overlay">
-          <div className="program-overview-popup">
-
-            {renderProgramOverview()}
-          </div>
-        </div>
+      {showUserInfoForm && (
+        <UserInfoForm
+          onSubmit={handleUserInfoSubmit}
+          onClose={() => setShowUserInfoForm(false)}
+        />
       )}
-
-      {showUserForm && (
-        <div className="user-form-overlay">
-          <div className="user-form-popup">
-            {renderUserInfoForm()}
-            <button onClick={() => setShowUserForm(false)}>Close</button>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 };

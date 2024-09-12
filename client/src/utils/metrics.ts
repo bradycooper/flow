@@ -1,21 +1,16 @@
-export interface ProgramMetrics {
-  estimatedCost: number;
-  potentialRevenue: number;
-  roi: number;
-  customerRetentionRate: number;
-}
+import { UserInfo, ProgramMetrics } from '../types';
 
-export const generateProgramMetrics = async (selectedAnswers: { [key: number]: string }): Promise<ProgramMetrics> => {
-  // This is a placeholder implementation. In a real-world scenario, you'd likely call an API to calculate these metrics.
-  const estimatedCost = Math.random() * 10000;
-  const potentialRevenue = estimatedCost * (1 + Math.random());
-  const roi = ((potentialRevenue - estimatedCost) / estimatedCost) * 100;
-  const customerRetentionRate = Math.random() * 100;
-
+export function generateProgramMetrics(
+  answers: { [key: string]: string },
+  userInfo: UserInfo
+): ProgramMetrics {
+  // This is a placeholder implementation. You should replace this with your actual logic.
   return {
-    estimatedCost: parseFloat(estimatedCost.toFixed(2)),
-    potentialRevenue: parseFloat(potentialRevenue.toFixed(2)),
-    roi: parseFloat(roi.toFixed(2)),
-    customerRetentionRate: parseFloat(customerRetentionRate.toFixed(2)),
+    estimatedCost: 10000,
+    potentialRevenue: 50000,
+    roi: 400,
+    customerRetentionRate: 80,
+    implementationTime: '3 months',
+    nextSteps: ['Plan', 'Implement', 'Review']
   };
-};
+}
