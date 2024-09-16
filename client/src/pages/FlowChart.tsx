@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generateProgramMetrics } from '../utils/metrics';
-import { generateReportUrl } from '../utils/reportGenerator';
+import { generateReportData, generateReportUrl } from '../utils/reportGenerator';
 import '../styles/FlowChart.css';
 import { FaRocket, FaUndo, FaTimes } from 'react-icons/fa';
-import { Question, Answer, UserInfo, ProgramMetrics } from '../types';
-
-// Remove the declare module statements
+import { Question, Answer, Option, UserInfo, ProgramMetrics, ReportData } from '../types';
 
 interface AnswerCardProps {
   answer: Answer;
@@ -14,11 +12,10 @@ interface AnswerCardProps {
 }
 
 const AnswerCard: React.FC<AnswerCardProps> = ({ answer, onSelect }) => {
-  console.log('Rendering AnswerCard:', answer);
   return (
     <div className="answer-card" onClick={onSelect}>
       <div className="answer-content">
-        <h3 className="answer-title">{answer.name}</h3>
+        <h3 className="answer-title">{answer.text}</h3>
         {answer.description && <p className="answer-description">{answer.description}</p>}
       </div>
     </div>
@@ -39,7 +36,7 @@ const DecisionTreeSummary: React.FC<{
         <div key={question.id} className="decision-tree-item">
           <span className="question">{question.text}</span>
           <span className="answer">
-            {question.options.find(option => option.id === selectedAnswers[question.id])?.name}
+            {question.options.find(option => option.id === selectedAnswers[question.id])?.text}
           </span>
         </div>
       ))}
@@ -148,15 +145,13 @@ const FlowChart: React.FC = () => {
     try {
       const response = await fetch('/api/questions');
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error || 'Unknown error'}`);
+        throw new Error('Failed to fetch questions');
       }
       const data = await response.json();
-      console.log('Fetched questions:', data);
+      console.log('Fetched questions:', data); // Add this line for debugging
       setQuestions(data);
     } catch (error) {
       console.error('Error fetching questions:', error);
-      // Optionally, set some error state here to show an error message to the user
     }
   };
 
@@ -176,29 +171,23 @@ const FlowChart: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleUserInfoSubmit = (userInfo: UserInfo) => {
+  const handleUserInfoSubmit = async (userInfo: UserInfo) => {
     const metrics = generateProgramMetrics(answers, userInfo);
-    const reportUrl = generateReportUrl(answers, metrics, userInfo, questions);
-    navigate(reportUrl);
+    try {
+      const reportData = await generateReportData(answers, metrics, userInfo, questions);
+      const reportUrl = generateReportUrl(reportData);
+      navigate(reportUrl);
+    } catch (error) {
+      console.error('Error generating report:', error);
+      // Handle error (e.g., show error message to user)
+    }
   };
 
   const progress = (Object.keys(answers).length / questions.length) * 100;
 
-  const isQuizComplete = Object.keys(answers).length === questions.length;
-
-  const handleCompletion = () => {
-    // Add any completion logic here, such as showing results or navigating to a new page
-    console.log("Quiz completed!");
-    // You can add navigation or show a modal here
-  };
-
   if (questions.length === 0) {
     return <div>Loading...</div>;
   }
-
-  console.log('Questions:', questions);
-  console.log('Visible Questions:', visibleQuestions);
-  console.log('Answers:', answers);
 
   return (
     <div className="flow-chart-container">

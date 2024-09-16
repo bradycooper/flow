@@ -1,30 +1,46 @@
-export interface Question {
-  id: string;
-  text: string;
-  description?: string;
-  options: Answer[];
-}
-
 export interface Answer {
   id: string;
-  name: string;
   text: string;
-  description: string;
+  name: string;
+  description?: string;
 }
 
-export interface ProgramMetrics {
+export interface Decision {
+  type: string;
+  value: string;
+  question: string;
+  answer: string;
+}
+
+export interface Metrics {
+  design: string;
+  implementation: string;
+  monitoring: string;
+  launch: string;
+  marketing: string;
+  setupTime: string;
+  maintenanceTime: string;
   estimatedCost: number;
-  potentialRevenue: number;
-  roi: number;
-  customerRetentionRate: number;
-  implementationTime: string; // Change this line
-  nextSteps: string[]; // Change this line
+  rolesNeeded: string[];
+}
+
+export interface AIResponse {
+  summary: string;
+  marketingSteps: string[];
+  considerations: string[];
+  metrics: Metrics;
 }
 
 export interface ReportData {
-  decisions: { question: string; answer: string }[];
+  answers: { [key: string]: string };
   metrics: ProgramMetrics;
   userInfo: UserInfo;
+  questions: Question[];
+  aiReport: AIResponse;
+}
+
+export interface ProgramMetrics {
+  // Define properties as needed
 }
 
 export interface UserInfo {
@@ -32,4 +48,25 @@ export interface UserInfo {
   email: string;
   companyName: string;
   revenue: string;
+}
+
+export interface Question {
+  id: string;
+  text: string;
+  type: string;
+  description?: string;
+  options: Option[];
+}
+
+export interface Option {
+  id: string;
+  name: string;
+  text: string;
+  description: string;
+}
+
+export interface Article {
+  id: string;
+  title: string;
+  content: string;
 }
