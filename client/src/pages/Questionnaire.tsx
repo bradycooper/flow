@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,  } from 'react';
 import { Question, UserInfo, ProgramMetrics } from '../types';
 import { generateReportData, generateReportUrl } from '../utils/reportGenerator';
 import { useNavigate } from 'react-router-dom';
@@ -31,8 +31,8 @@ const Questionnaire: React.FC<QuestionnaireProps> = ({ questions }) => {
     try {
       const metrics: ProgramMetrics = {}; // Define metrics as needed
       const reportData = await generateReportData(answers, metrics, userInfo, questions);
-      const reportUrl = generateReportUrl(reportData);
-      navigate(reportUrl);
+      localStorage.setItem('reportData', JSON.stringify(reportData));
+      navigate('/report');
     } catch (error) {
       console.error('Error generating report:', error);
       // Handle error (e.g., show error message to user)

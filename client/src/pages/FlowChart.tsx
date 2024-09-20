@@ -175,8 +175,10 @@ const FlowChart: React.FC = () => {
     const metrics = generateProgramMetrics(answers, userInfo);
     try {
       const reportData = await generateReportData(answers, metrics, userInfo, questions);
-      const reportUrl = generateReportUrl(reportData);
-      navigate(reportUrl);
+      if (reportData) {
+      localStorage.setItem('reportData', JSON.stringify(reportData));
+      navigate('/report');
+      }
     } catch (error) {
       console.error('Error generating report:', error);
       // Handle error (e.g., show error message to user)

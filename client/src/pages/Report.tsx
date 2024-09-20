@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { ReportData } from '../types';
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { ReportData } from "../types";
 
 const Report: React.FC = () => {
   const [reportData, setReportData] = useState<ReportData | null>(null);
-  const location = useLocation();
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const encodedData = searchParams.get('data');
-    if (encodedData) {
-      const decodedData: ReportData = JSON.parse(decodeURIComponent(encodedData));
+    const storedData = localStorage.getItem("reportData");
+    if (storedData) {
+      const decodedData: ReportData = JSON.parse(storedData);
       setReportData(decodedData);
     }
-  }, [location]);
+  }, []);
 
   if (!reportData) {
     return <div>Loading...</div>;
@@ -48,7 +46,7 @@ const Report: React.FC = () => {
         <li>Setup Time: {aiReport.metrics.setupTime}</li>
         <li>Maintenance Time: {aiReport.metrics.maintenanceTime}</li>
         <li>Estimated Cost: ${aiReport.metrics.estimatedCost}</li>
-        <li>Roles Needed: {aiReport.metrics.rolesNeeded.join(', ')}</li>
+        <li>Roles Needed: {aiReport.metrics.rolesNeeded.join(", ")}</li>
       </ul>
     </div>
   );

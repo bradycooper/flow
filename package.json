@@ -1,6 +1,7 @@
 {
   "name": "flow",
   "version": "1.0.0",
+  "type": "commonjs",
   "scripts": {
     "start": "concurrently \"node server.js\" \"cd client && npm start\"",
     "build": "cd client && npm run build",

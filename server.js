@@ -4,8 +4,9 @@ const path = require('path');
 const mongoose = require('mongoose');
 const NodeCache = require('node-cache');
 require('dotenv').config();
-const { generateAIReport } = require('./services/aiService');
-
+const { generateAIReport, populatePinecone } = require('./services/aiService');
+const { MongoDBConnection } = require('./db');
+const {questions} = require('./utils/questions.json');
 const app = express();
 const port = process.env.PORT || 3005;
 const cache = new NodeCache({ stdTTL: 600 }); // Cache for 10 minutes
@@ -20,14 +21,19 @@ app.use(express.json());
 // Serve static files from the React app build directory
 app.use(express.static(path.join(__dirname, 'client/build')));
 
-console.log('About to connect to MongoDB Atlas...');
+MongoDBConnection();
 
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB Atlas connected successfully'))
-.catch(err => console.error('MongoDB Atlas connection error:', err));
+// populatePinecone()
+//   .then(() => {
+//     console.log('Pinecone has been populated with data from Notion.');
+//   })
+//   .catch((error) => {
+//     console.error('Error populating Pinecone:', error);
+//     process.exit(1); // Exit the process if population fails
+//   });
+
+
+console.log('About to connect to MongoDB Atlas...');
 
 // Define schemas
 const chatHistorySchema = new mongoose.Schema({
@@ -53,9 +59,9 @@ const ChatHistory = mongoose.model('ChatHistory', chatHistorySchema);
 const FormQuestion = mongoose.model('FormQuestion', formQuestionSchema);
 
 // Keep the existing questions array
-const questions = [
-  // ... (include all the questions from the original server.js file)
-];
+// const questions = [
+//   // ... (include all the questions from the original server.js file)
+// ];
 
 // Routes
 app.get('/', (req, res) => {
@@ -65,13 +71,13 @@ app.get('/', (req, res) => {
 app.get('/api/questions', async (req, res) => {
   console.log('Received request for /api/questions');
   try {
-    const cachedQuestions = cache.get('questions');
+    const cachedQuestions = questions;
     if (cachedQuestions) {
       return res.json(cachedQuestions);
     }
 
     const formQuestions = await FormQuestion.find();
-    const questions = formQuestions.map(q => ({
+    const dbQuestions = formQuestions.map(q => ({
       id: q.id,
       text: q.text,
       options: q.options.map(o => ({
@@ -81,8 +87,8 @@ app.get('/api/questions', async (req, res) => {
       }))
     }));
 
-    cache.set('questions', questions);
-    res.json(questions);
+    cache.set('questions', dbQuestions);
+    res.json(dbQuestions);
   } catch (error) {
     console.error('Error fetching questions:', error);
     res.status(500).json({ error: 'Failed to fetch questions' });
@@ -116,14 +122,6 @@ app.post('/api/generate-report', async (req, res) => {
 // match one above, send back React's index.html file.
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
-});
-
-mongoose.connection.on('error', (err) => {
-  console.error('MongoDB connection error:', err);
-});
-
-mongoose.connection.once('open', () => {
-  console.log('MongoDB database connection established successfully');
 });
 
 app.listen(port, () => {
