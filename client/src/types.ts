@@ -70,3 +70,15 @@ export interface Article {
   title: string;
   content: string;
 }
+
+export interface InputLabelProps
+  extends React.LabelHTMLAttributes<HTMLLabelElement> {
+  label: string;
+  required?: boolean;
+  id?: string;
+}
+export interface InputFieldProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+  id?: string;
+}
