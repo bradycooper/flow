@@ -19,7 +19,7 @@ const FlowChartPageTemplate: React.FC<{
 }> = ({ questions, loading, error }) => {
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
   const [visibleQuestions, setVisibleQuestions] = useState<number>(1);
-  const [showUserInfoForm, setShowUserInfoForm] = useState(true);
+  const [showUserInfoForm, setShowUserInfoForm] = useState(false);
   const navigate = useNavigate();
   const { ref } = useScrollToView([visibleQuestions]);
 
@@ -47,22 +47,22 @@ const FlowChartPageTemplate: React.FC<{
   };
 
   const handleUserInfoSubmit = async (userInfo: UserInfo) => {
-    const metrics = generateProgramMetrics(answers, userInfo);
-    try {
-      const reportData = await generateReportData(
-        answers,
-        metrics,
-        userInfo,
-        questions
-      );
-      if (reportData) {
-        localStorage.setItem("reportData", JSON.stringify(reportData));
-        navigate("/report");
-      }
-    } catch (error) {
-      console.error("Error generating report:", error);
-    }
-    // navigate("/report");
+    // const metrics = generateProgramMetrics(answers, userInfo);
+    // try {
+    //   const reportData = await generateReportData(
+    //     answers,
+    //     metrics,
+    //     userInfo,
+    //     questions
+    //   );
+    //   if (reportData) {
+    //     localStorage.setItem("reportData", JSON.stringify(reportData));
+    //     navigate("/report");
+    //   }
+    // } catch (error) {
+    //   console.error("Error generating report:", error);
+    // }
+    navigate("/report");
   };
 
   if (loading) {
