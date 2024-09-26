@@ -9,7 +9,6 @@ const RecommendationHeader: React.FC<{
   // answers: { [key: string]: string };
   progress: number;
 }> = ({ questions, progress }) => {
-  console.log({ progress, questions });
   return (
     <div className="pb-10">
       <Logo className="mb-8" />

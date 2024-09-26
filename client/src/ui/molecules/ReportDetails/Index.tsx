@@ -16,7 +16,6 @@ import { generateRandomString } from "../../../utils/generateRandomString";
 const ReportDetails: React.FC<{
   report: ReportData | null;
 }> = ({ report }) => {
-  console.log("REPORTS", report);
   const navigate = useNavigate();
   if (!report) {
     // navigate("/");
@@ -34,17 +33,6 @@ const ReportDetails: React.FC<{
       nextSteps,
     },
   } = report;
-
-  console.log({
-    userInfo: { revenue },
-    aiReport: {
-      metrics: { estimatedCost, implementationTimeline },
-      summary,
-      marketingSteps,
-      considerations,
-      nextSteps,
-    },
-  });
   return (
     <div className="grid grid-cols-12 p-4 gap-x-3 gap-y-10">
       <Heading className="col-span-full">Your future company sales</Heading>

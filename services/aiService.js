@@ -136,7 +136,6 @@ async function populatePinecone() {
     ])
   }
   
-  console.log('Pinecone populated with Notion data');
 }
 
 // Function to generate AI report based on user selections

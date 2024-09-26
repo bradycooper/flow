@@ -28,7 +28,6 @@ const useFetch = <T>(url: string): FetchResponse<T> => {
         setLoading(false);
       } catch (err) {
         if (signal.aborted) {
-          console.log("Fetch aborted");
         } else {
           setLoading(false);
           setError(err);
