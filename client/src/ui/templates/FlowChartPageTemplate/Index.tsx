@@ -46,23 +46,26 @@ const FlowChartPageTemplate: React.FC<{
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleClose = () => {
+    setShowUserInfoForm(false);
+  };
+
   const handleUserInfoSubmit = async (userInfo: UserInfo) => {
-    // const metrics = generateProgramMetrics(answers, userInfo);
-    // try {
-    //   const reportData = await generateReportData(
-    //     answers,
-    //     metrics,
-    //     userInfo,
-    //     questions
-    //   );
-    //   if (reportData) {
-    //     localStorage.setItem("reportData", JSON.stringify(reportData));
-    //     navigate("/report");
-    //   }
-    // } catch (error) {
-    //   console.error("Error generating report:", error);
-    // }
-    navigate("/report");
+    const metrics = generateProgramMetrics(answers, userInfo);
+    try {
+      const reportData = await generateReportData(
+        answers,
+        metrics,
+        userInfo,
+        questions
+      );
+      if (reportData) {
+        localStorage.setItem("reportData", JSON.stringify(reportData));
+        navigate("/report");
+      }
+    } catch (error) {
+      console.error("Error generating report:", error);
+    }
   };
 
   if (loading) {
@@ -120,8 +123,8 @@ const FlowChartPageTemplate: React.FC<{
       </div>
       {showUserInfoForm && (
         <GenerateReportForm
-          onSubmit={handleUserInfoSubmit}
-          onClose={() => setShowUserInfoForm(false)}
+          handleSubmit={handleUserInfoSubmit}
+          handleClose={handleClose}
         />
       )}
     </>

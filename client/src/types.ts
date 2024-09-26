@@ -21,6 +21,7 @@ export interface Metrics {
   setupTime: string;
   maintenanceTime: string;
   estimatedCost: number;
+  implementationTimeline: string;
   rolesNeeded: string[];
 }
 
@@ -29,6 +30,7 @@ export interface AIResponse {
   marketingSteps: string[];
   considerations: string[];
   metrics: Metrics;
+  nextSteps: string[];
 }
 
 export interface ReportData {

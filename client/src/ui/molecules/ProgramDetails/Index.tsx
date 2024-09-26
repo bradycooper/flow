@@ -1,10 +1,13 @@
 import React from "react";
 import { Cn } from "../../../utils/twCn";
 import SelectedItem from "../SelectedItem/Index";
+import { Question } from "../../../types";
 
 const ProgramDetails: React.FC<{
   className?: string | { [key: string]: string };
-}> = ({ className }) => {
+  questions: Question[];
+  answers: { [key: string]: string };
+}> = ({ className, questions, answers }) => {
   return (
     <div
       className={Cn(
@@ -12,13 +15,19 @@ const ProgramDetails: React.FC<{
         "p-10 rounded-lg bg-light-cream border border-bright-yellow grid grid-cols-3 gap-5"
       )}
     >
-      {Array.from({ length: 9 }).map(() => (
-        <SelectedItem
-          text="What are you looking to accomplish in your business?"
-          answer="New Customer"
-          className="border-bright-yellow"
-        />
-      ))}
+      {questions.map(({ id, text, options }) => {
+        const answer = options.find(
+          (option) => option.id === answers[id]
+        )?.text;
+
+        return (
+          <SelectedItem
+            text={text}
+            answer={answer}
+            className="border-bright-yellow"
+          />
+        );
+      })}
     </div>
   );
 };

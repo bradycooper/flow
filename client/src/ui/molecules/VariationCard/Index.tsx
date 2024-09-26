@@ -10,7 +10,7 @@ const VariationCard: React.FC<{
     <div
       className={Cn(
         className,
-        "p-10 rounded-lg border border-dark-grey flex items-center justify-evenly bg-white min-h-[346px]"
+        "p-10 rounded-lg border border-dark-grey flex items-center justify-evenly bg-white min-h-[330px]"
       )}
     >
       <div className="space-y-4">

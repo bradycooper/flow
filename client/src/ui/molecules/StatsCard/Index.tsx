@@ -1,7 +1,6 @@
-import { Answer } from "../../../types";
+import { useEffect, useRef } from "react";
 import { Cn } from "../../../utils/twCn";
 import Content from "../../atoms/Typography/Content/Index";
-import Heading from "../../atoms/Typography/Heading/Index";
 
 const StatsCard: React.FC<{
   className?: string | { [key: string]: string };
@@ -11,6 +10,7 @@ const StatsCard: React.FC<{
   heading: string;
   description?: string;
   children: React.ReactNode;
+  sucessScore?: string;
 }> = ({
   className,
   headingClassName,
@@ -19,23 +19,65 @@ const StatsCard: React.FC<{
   heading,
   description,
   children,
+  sucessScore,
 }) => {
+  const childrenRef = useRef<HTMLHeadingElement | null>(null);
+
+  const adjustFontSize = () => {
+    const element = childrenRef.current;
+    if (element) {
+      const containerWidth = element.parentElement?.offsetWidth || 0;
+      const textLength = element.textContent?.length || 0;
+
+      const fontSize = Math.min(containerWidth / textLength, 40);
+      element.style.fontSize = `${fontSize}px`;
+    }
+  };
+
+  useEffect(() => {
+    adjustFontSize();
+    window.addEventListener("resize", adjustFontSize);
+
+    return () => window.removeEventListener("resize", adjustFontSize);
+  }, []);
+
   return (
     <div
       className={Cn(
-        "px-12 py-6 border border-dark-grey rounded-lg space-y-3",
+        "px-10 py-5 border border-dark-grey rounded-lg space-y-4",
         className
       )}
     >
-      <Content className={Cn("text-[15px] font-[500]", headingClassName)}>
+      <Content
+        className={Cn(
+          "text-[15px] font-[500] font-geologica",
+          headingClassName
+        )}
+      >
         {heading}
       </Content>
 
-      <Heading className={Cn("text-[35px] font-[700]", childrenClassName)}>
+      <h2
+        ref={childrenRef}
+        className={Cn(
+          "text-[28px] font-[700] font-geologica",
+          childrenClassName
+        )}
+      >
         {children}
-      </Heading>
+      </h2>
+
+      {sucessScore && (
+        <p className="text-[12px] font-bold font-geologica">{sucessScore}</p>
+      )}
+
       {description && (
-        <Content className={Cn("text-[15px] font-[400]", descriptionClassName)}>
+        <Content
+          className={Cn(
+            "text-[15px] font-[300] font-geologica",
+            descriptionClassName
+          )}
+        >
           {description}
         </Content>
       )}

@@ -4,7 +4,8 @@ import { Cn } from "../../../utils/twCn";
 
 const NextSteps: React.FC<{
   className?: string | { [key: string]: string };
-}> = ({ className }) => {
+  nextSteps: string[];
+}> = ({ className, nextSteps }) => {
   return (
     <div
       className={Cn(
@@ -12,17 +13,23 @@ const NextSteps: React.FC<{
         className
       )}
     >
-      {Array.from({ length: 27 }).map(() => {
+      {nextSteps.map((nextSteps) => {
         const randomString = generateRandomString();
         return (
           <React.Fragment key={randomString}>
-            <div className="py-2  first:border-t border-b border-dark-grey text-dark-grey list-disc flex items-center gap-7">
-              <input type="checkbox" name=" " id={randomString} className="scale-150"/>
+            <div className="py-2  first:border-t border-b border-dark-grey text-dark-grey list-disc flex items-center gap-5">
+              <input
+                type="checkbox"
+                name=" "
+                disabled
+                id={randomString}
+                className="scale-150"
+              />
               <label
                 htmlFor={randomString}
-                className="cursor-pointer font-geologica text-[26px] font-[400]"
+                className="cursor-pointer font-geologica text-[22px] font-[300]"
               >
-                Create a program
+                {nextSteps}
               </label>
             </div>
           </React.Fragment>

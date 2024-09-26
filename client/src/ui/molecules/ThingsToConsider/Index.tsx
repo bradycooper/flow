@@ -4,7 +4,8 @@ import { Cn } from "../../../utils/twCn";
 
 const ThingsToConsider: React.FC<{
   className?: string | { [key: string]: string };
-}> = ({ className }) => {
+  considerations: string[];
+}> = ({ className, considerations }) => {
   return (
     <ul
       className={Cn(
@@ -12,10 +13,12 @@ const ThingsToConsider: React.FC<{
         className
       )}
     >
-      {Array.from({ length: 27 }).map(() => (
+      {considerations.map((consideration) => (
         <React.Fragment key={generateRandomString()}>
           <div className="py-2 pl-7 first:border-t border-b border-dark-grey text-dark-grey list-disc">
-            <li className="font-geologica text-[26px] font-[400]">How you're going to give points</li>
+            <li className="font-geologica text-[22px] font-[300]">
+              {consideration}
+            </li>
           </div>
         </React.Fragment>
       ))}

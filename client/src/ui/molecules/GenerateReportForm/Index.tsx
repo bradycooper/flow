@@ -7,9 +7,9 @@ import { generateRandomString } from "../../../utils/generateRandomString";
 import Button from "../../atoms/Button/Index";
 
 const GenerateReportForm: React.FC<{
-  onSubmit: (userInfo: UserInfo) => void;
-  onClose: () => void;
-}> = ({ onSubmit, onClose }) => {
+  handleSubmit: (userInfo: UserInfo) => void;
+  handleClose: () => void;
+}> = ({ handleSubmit, handleClose }) => {
   const [userInfo, setUserInfo] = useState<UserInfo>({
     name: "",
     email: "",
@@ -21,11 +21,6 @@ const GenerateReportForm: React.FC<{
     setUserInfo({ ...userInfo, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (event: FormEvent) => {
-    event.preventDefault();
-    onSubmit(userInfo);
-  };
-
   return (
     <div className="fixed flex items-center justify-center top-0 left-0 w-screen h-screen bg-overlay">
       <SiteWrapper className="grow shrink-0">
@@ -35,7 +30,10 @@ const GenerateReportForm: React.FC<{
           </Title>
           <form
             className="grid grid-cols-2 gap-x-8 gap-y-6"
-            onSubmit={handleSubmit}
+            onSubmit={(event: FormEvent) => {
+              event.preventDefault();
+              handleSubmit(userInfo);
+            }}
           >
             <InputField
               type="text"
@@ -73,18 +71,20 @@ const GenerateReportForm: React.FC<{
               label="Annual Revenue ($)"
               id={generateRandomString()}
             />
-            <Button className="ml-auto w-1/2 mt-10">Generate Report</Button>
             <Button
-              onClick={(
-                event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-              ) => {
-                event.preventDefault();
-                onClose();
-              }}
-              className="bg-grey text-light-grey mr-auto w-1/2 mt-10"
+              className="ml-auto w-1/2 mt-10"
+              // onClick={(event) => {
+              //   event.preventDefault;
+              // }}
+            >
+              Generate Report
+            </Button>
+            <span
+              onClick={handleClose}
+              className="bg-grey text-light-grey mr-auto w-1/2 mt-10 border border-light-grey font-geologica rounded-full flex items-center justify-center outline-none"
             >
               Cancel
-            </Button>
+            </span>
           </form>
         </div>
       </SiteWrapper>
