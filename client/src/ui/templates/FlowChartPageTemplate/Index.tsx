@@ -20,6 +20,7 @@ const FlowChartPageTemplate: React.FC<{
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
   const [visibleQuestions, setVisibleQuestions] = useState<number>(1);
   const [showUserInfoForm, setShowUserInfoForm] = useState(false);
+  const [loadingResponse, setLoadingResponse] = useState(false);
   const navigate = useNavigate();
   const { ref } = useScrollToView([visibleQuestions]);
 
@@ -51,6 +52,7 @@ const FlowChartPageTemplate: React.FC<{
   };
 
   const handleUserInfoSubmit = async (userInfo: UserInfo) => {
+    setLoadingResponse(true);
     const metrics = generateProgramMetrics(answers, userInfo);
     try {
       const reportData = await generateReportData(
@@ -61,9 +63,11 @@ const FlowChartPageTemplate: React.FC<{
       );
       if (reportData) {
         localStorage.setItem("reportData", JSON.stringify(reportData));
+        setLoadingResponse(false);
         navigate("/report");
       }
     } catch (error) {
+      setLoadingResponse(false);
       console.error("Error generating report:", error);
     }
   };
@@ -124,6 +128,7 @@ const FlowChartPageTemplate: React.FC<{
       {showUserInfoForm && (
         <GenerateReportForm
           handleSubmit={handleUserInfoSubmit}
+          loading={loadingResponse}
           handleClose={handleClose}
         />
       )}

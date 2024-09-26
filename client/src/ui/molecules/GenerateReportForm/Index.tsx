@@ -5,11 +5,14 @@ import Title from "../../atoms/Typography/Title/Index";
 import InputField from "../../atoms/InputField/Index";
 import { generateRandomString } from "../../../utils/generateRandomString";
 import Button from "../../atoms/Button/Index";
+import { Cn } from "../../../utils/twCn";
+import Spinner from "../../atoms/Spinner/Index";
 
 const GenerateReportForm: React.FC<{
   handleSubmit: (userInfo: UserInfo) => void;
   handleClose: () => void;
-}> = ({ handleSubmit, handleClose }) => {
+  loading: boolean;
+}> = ({ handleSubmit, handleClose, loading }) => {
   const [userInfo, setUserInfo] = useState<UserInfo>({
     name: "",
     email: "",
@@ -72,12 +75,18 @@ const GenerateReportForm: React.FC<{
               id={generateRandomString()}
             />
             <Button
-              className="ml-auto w-1/2 mt-10"
+              className={Cn(
+                "ml-auto w-1/2 mt-10 flex justify-center items-center gap-2",
+                {
+                  "opacity-70": loading,
+                }
+              )}
+              disabled={loading}
               // onClick={(event) => {
               //   event.preventDefault;
               // }}
             >
-              Generate Report
+              {loading ? <Spinner /> : "Generate Report"}
             </Button>
             <span
               onClick={handleClose}

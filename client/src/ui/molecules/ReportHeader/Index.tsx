@@ -11,7 +11,7 @@ const ReportHeader: React.FC<{}> = () => {
     <div className="pb-10">
       <div className="flex items-center justify-between mb-8">
         <Logo />
-        <ToggleInfluencerMode />
+        {/* <ToggleInfluencerMode /> */}
       </div>
       <Title className="font-garamond text-center">
         Generated Reward Program Report

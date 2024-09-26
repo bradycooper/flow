@@ -1,8 +1,9 @@
 import React from "react";
 import StatsCard from "../StatsCard/Index";
 import { Cn } from "../../../utils/twCn";
-import { multipleOfThirtyPercent } from "../../../utils/multipleOfThirtyPercent";
+import { additionOfThirtyPercent } from "../../../utils/multipleOfThirtyPercent";
 import { generateRandomBetween } from "../../../utils/generateRandomBetween";
+import { eliminateEndingString } from "../../../utils/eliminateEndingString";
 
 const ReportMetrices: React.FC<{
   className?: string | { [key: string]: string };
@@ -10,7 +11,7 @@ const ReportMetrices: React.FC<{
   implementationTimeline: string;
   revenue: string;
 }> = ({ className, estimatedCost, implementationTimeline, revenue }) => {
-  const potentialRevenue = multipleOfThirtyPercent(Number(revenue));
+  const potentialRevenue = additionOfThirtyPercent(Number(revenue));
   const score = generateRandomBetween(80, 90);
   return (
     <div className={Cn("grid grid-cols-4 gap-x-3", className)}>
@@ -18,8 +19,11 @@ const ReportMetrices: React.FC<{
         className=" bg-teal"
         heading="Without Kwik Estimated Cost"
         description="This is the total cost of what it would take to create this program on your own based on the program you created"
+        powered
       >
-        {estimatedCost}
+        {typeof estimatedCost === "string"
+          ? eliminateEndingString(estimatedCost)
+          : estimatedCost}
       </StatsCard>
       <StatsCard
         className=" bg-coral"
@@ -32,6 +36,7 @@ const ReportMetrices: React.FC<{
         className=" bg-bright-yellow"
         heading="Without Kwik Estimated Timeline"
         description="This is how long it could take to implement a program like is without using Kwik."
+        powered
       >
         {implementationTimeline}
       </StatsCard>

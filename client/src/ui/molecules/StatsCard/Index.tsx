@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Cn } from "../../../utils/twCn";
 import Content from "../../atoms/Typography/Content/Index";
+import PoweredByOpenAI from "../../atoms/PoweredByOpenAI/Index";
 
 const StatsCard: React.FC<{
   className?: string | { [key: string]: string };
@@ -11,6 +12,7 @@ const StatsCard: React.FC<{
   description?: string;
   children: React.ReactNode;
   sucessScore?: string;
+  powered?: boolean;
 }> = ({
   className,
   headingClassName,
@@ -20,6 +22,7 @@ const StatsCard: React.FC<{
   description,
   children,
   sucessScore,
+  powered,
 }) => {
   const childrenRef = useRef<HTMLHeadingElement | null>(null);
 
@@ -44,7 +47,7 @@ const StatsCard: React.FC<{
   return (
     <div
       className={Cn(
-        "px-10 py-5 border border-dark-grey rounded-lg space-y-4",
+        "px-10 py-5 border border-dark-grey rounded-lg flex flex-col gap-4",
         className
       )}
     >
@@ -81,6 +84,8 @@ const StatsCard: React.FC<{
           {description}
         </Content>
       )}
+
+      {powered && <PoweredByOpenAI />}
     </div>
   );
 };

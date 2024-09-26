@@ -100,7 +100,7 @@ const ReportDetails: React.FC<{
       </StatsCard> */}
       <StatsCard
         className="col-span-full bg-bright-yellow space-y-5 py-10 text-center"
-        heading="Estimated Time"
+        heading="Employees Needed"
         headingClassName="text-[20px]"
       >
         <ul className="list-disc leading-snug text-[22px] font-[300] flex items-center gap-x-10 gap-y-2 justify-center flex-wrap font-geologica">
