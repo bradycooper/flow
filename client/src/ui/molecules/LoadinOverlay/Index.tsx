@@ -20,7 +20,7 @@ const LoadingOverlay: React.FC = () => {
         setMessageIndex((prevIndex) => (prevIndex + 1) % messages.length);
         setIsFading(false);
       }, 500);
-    }, 2000);
+    }, 4000);
     return () => clearInterval(interval);
   }, [messages.length]);
 
