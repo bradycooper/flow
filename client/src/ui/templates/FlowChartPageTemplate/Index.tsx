@@ -57,6 +57,7 @@ const FlowChartPageTemplate: React.FC<{
 
   const handleUserInfoSubmit = async (userInfo: UserInfo) => {
     setLoadingResponse(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
     const metrics = generateProgramMetrics(answers, userInfo);
     try {
       const reportData = await generateReportData(
