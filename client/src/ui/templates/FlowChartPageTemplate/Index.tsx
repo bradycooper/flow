@@ -96,7 +96,7 @@ const FlowChartPageTemplate: React.FC<{
         questions={questions}
         selectedAnswers={answers}
         onReset={handleReset}
-        className="col-span-4"
+        className="col-span-4 sticky top-[170px] self-start z-10 h-[620px] overflow-y-scroll"
       />
       <div className="col-start-5 col-span-full flex flex-col gap-7">
         {questions.slice(0, visibleQuestions).map((question) => {
