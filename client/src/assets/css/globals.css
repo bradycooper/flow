@@ -18,3 +18,7 @@
   background-color: rgba(0, 0, 0, 0.1); /* Adjust track color */
   border-radius: 10px; /* Match thumb radius for seamless look */
 }
+
+.hidden-scrollbar::-webkit-scrollbar {
+  display: none;
+}
