@@ -160,7 +160,7 @@ async function generateAIReport(selections) {
     const aiResponseText = response.choices[0].message?.content || '';
     const aiResponse = JSON.parse(aiResponseText);
 
-    return aiResponse;
+     return aiResponse;
   } catch (error) {
     console.error('Error generating AI report:', error);
     throw error;

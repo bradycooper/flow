@@ -54,10 +54,6 @@ const FlowChartPageTemplate: React.FC<{
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleClose = () => {
-    setShowUserInfoForm(false);
-  };
-
   const handleUserInfoSubmit = async (userInfo: UserInfo) => {
     setLoadingResponse(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -134,7 +130,7 @@ const FlowChartPageTemplate: React.FC<{
         <GenerateReportForm
           handleSubmit={handleUserInfoSubmit}
           loading={loadingResponse}
-          handleClose={handleClose}
+          handleClose={handleReset}
         />
       )}
     </>

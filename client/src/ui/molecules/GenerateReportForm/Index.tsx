@@ -88,9 +88,9 @@ const GenerateReportForm: React.FC<{
             </Button>
             <span
               onClick={handleClose}
-              className="bg-grey text-light-grey mr-auto w-[45%] mt-5 border border-light-grey font-geologica rounded-full flex items-center justify-center outline-none"
+              className="bg-grey cursor-pointer text-dark-grey-grey mr-auto w-[35%] mt-5 border border-light-grey font-geologica rounded-full flex items-center justify-center outline-none opacity-70"
             >
-              Cancel
+              Reset
             </span>
           </form>
         </div>
