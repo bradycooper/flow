@@ -11,7 +11,7 @@ const Logo: React.FC<{
     <img
       src={black ? logoBlack : logo}
       alt="Logo"
-      className={Cn("w-32 h-auto inline-block", className)}
+      className={Cn("w-26 h-9 inline-block", className)}
     />
   );
 };

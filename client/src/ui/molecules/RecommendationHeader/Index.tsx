@@ -12,7 +12,7 @@ const RecommendationHeader: React.FC<{
 }> = ({ questions, progress, className }) => {
   return (
     <div className={Cn("pb-6", className)}>
-      <Logo className="mb-8" />
+      <Logo className="mb-7" />
       <Title className="font-garamond text-center">
         Program Recommendation Tool
       </Title>
