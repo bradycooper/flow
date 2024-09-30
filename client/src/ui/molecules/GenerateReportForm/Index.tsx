@@ -26,8 +26,8 @@ const GenerateReportForm: React.FC<{
 
   return (
     <div className="fixed flex items-center justify-center top-0 left-0 w-screen h-screen bg-overlay z-50">
-      <LoadingOverlay />
-      {/* {loading && <LoadingOverlay />} */}
+    {loading && <LoadingOverlay />}      
+{/* {loading && <LoadingOverlay />} */}
       <SiteWrapper className="grow shrink-0 max-w-[1000px]">
         <div className="w-full bg-white p-10 rounded-sm">
           <Title className="font-garamond text-center mb-8 text-[55px]">
