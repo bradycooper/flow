@@ -32,6 +32,9 @@ const FlowChartPageTemplate: React.FC<{
 
   useEffect(() => {
     document.body.style.overflowY = showUserInfoForm ? "hidden" : "scroll";
+    return () => {
+      document.body.style.overflowY = "scroll";
+    };
   }, [showUserInfoForm]);
 
   const handleAnswer = (questionId: string, answerId: string) => {
@@ -87,13 +90,13 @@ const FlowChartPageTemplate: React.FC<{
         // answers={answers}
         progress={Object.keys(answers).length}
         questions={questions.length}
-        className="col-span-full sticky -top-[150px] bg-white z-20"
+        className="col-span-full sticky -top-16 bg-white z-20"
       />
       <DecisionTreeSummary
         questions={questions}
         selectedAnswers={answers}
         onReset={handleReset}
-        className="col-span-4 sticky top-[90px] self-start z-10 h-[620px] overflow-y-scroll"
+        className="col-span-4"
       />
       <div className="col-start-5 col-span-full flex flex-col gap-7">
         {questions.slice(0, visibleQuestions).map((question) => {
