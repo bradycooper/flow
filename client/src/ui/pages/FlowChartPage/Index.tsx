@@ -16,7 +16,7 @@ const FlowChartPage: React.FC = () => {
   const { data, loading, error } = useFetch<Question[]>("/api/questions");
   return (
     <main>
-      <SiteWrapper className="bg-white min-h-screen py-12">
+      <SiteWrapper className="bg-white min-h-screen py-12 grid grid-cols-12 gap-x-8">
         <FlowChartPageTemplate
           questions={data ?? []}
           loading={loading}

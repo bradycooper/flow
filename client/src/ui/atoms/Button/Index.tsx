@@ -9,7 +9,7 @@ const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({
   return (
     <button
       className={Cn(
-        "inline-block outline-none rounded-full px-10 py-3 bg-bright-yellow  border border-overlay-light text-[18px] font-[500]",
+        "inline-block outline-none rounded-full px-6 py-2 bg-bright-yellow  border border-overlay-light text-[18px] font-[500]",
         className,
         { ...props }
       )}

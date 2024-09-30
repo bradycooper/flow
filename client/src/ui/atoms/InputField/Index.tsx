@@ -15,7 +15,7 @@ const InputField: React.FC<InputFieldProps> = ({
       {label && <InputLabel id={id} label={label} required={required} />}
       <input
         className={Cn(
-          "inline-block outline-none bg-grey p-2 border border-light-grey",
+          "inline-block outline-none bg-grey p-1.5 border border-light-grey",
           className
         )}
         id={id}
