@@ -31,7 +31,11 @@ const FlowChartPageTemplate: React.FC<{
 
   // Effect to handle smooth scrolling when visibleQuestions changes
   useEffect(() => {
-    if (visibleQuestions > 1 && subtitleRefs.current && subtitleRefs.current[visibleQuestions - 1]) {
+    if (
+      visibleQuestions > 1 &&
+      subtitleRefs.current &&
+      subtitleRefs.current[visibleQuestions - 1]
+    ) {
       const subtitleRef = subtitleRefs.current[visibleQuestions - 1];
       if (subtitleRef) {
         subtitleRef.scrollIntoView({
@@ -43,10 +47,13 @@ const FlowChartPageTemplate: React.FC<{
   }, [visibleQuestions]);
 
   const handleAnswer = (questionId: string, answerId: string) => {
-    setAnswers((prevAnswers) => ({
-      ...prevAnswers,
-      [questionId]: answerId,
-    }));
+    setAnswers({ ...answers, [questionId]: answerId });
+    if (answers[questionId]) return;
+    if (visibleQuestions < questions.length) {
+      setVisibleQuestions(visibleQuestions + 1);
+    } else {
+      setShowUserInfoForm(true);
+    }
 
     // Reveal the next question if available
     if (visibleQuestions < questions.length) {
