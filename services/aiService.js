@@ -207,9 +207,9 @@ function constructPrompt(selections, articles) {
   14. Deal with accrued liability from the points.
 
   4. **Considerations**:
-  Okay AI, this is where you put on your Kwik. AI hat and you really look at our knowledge base to come up with the technicalities of the program.Please look at the knowledge base in depth and find out every detail and information we have on the answers the user submitted.
-  You need to come up with at least 15 different complex elements that they might have not thought of but our team has thought of.You really need to think about the knowledge base and things your average business person who doesn’t know much about rewards program might not know.
-  Also include some technical questions they have to answer, you can form this on questions based on different options and ways they can go in the knowledge base to showcase to them all the different ways they could execute on this program.Here are some examples for someone choosing new customers and loyalty points.
+  Okay AI, this is where you put on your Kwik. AI hat and you really look at our knowledge base to come up with the technicalities of the program. Please look at the knowledge base I provided in depth and find out every detail and information we have on the answers the user submitted.
+  You need to come up with minimum 15 different complex and unique points that they might have not thought of but our team has thought of. You really need to think about the knowledge base I provided and things your average business person who doesn’t know much about rewards program might not know.
+  Also include some technical questions they have to answer, you can form this on questions based on different options and ways they can go in the knowledge base I provided to showcase to them all the different ways they could execute on this program.Here are some examples for someone choosing new customers and loyalty points.
   1. Are points the right reward for a new customers?
   2. Have you had a program previously?
   3. Do your customers buy enough to justify points.
