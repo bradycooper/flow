@@ -47,18 +47,15 @@ const FlowChartPageTemplate: React.FC<{
   }, [visibleQuestions]);
 
   const handleAnswer = (questionId: string, answerId: string) => {
-    setAnswers((prevAnswers) => ({
-      ...prevAnswers,
-      [questionId]: answerId,
-    }));
-
+    setAnswers({ ...answers, [questionId]: answerId });
     if (answers[questionId]) return;
-
     if (visibleQuestions < questions.length) {
       setVisibleQuestions(visibleQuestions + 1);
     } else {
-      setShowUserInfoForm(true);     }
+      setShowUserInfoForm(true);
+    }
 
+    // Reveal the next question if available
     if (visibleQuestions < questions.length) {
       setVisibleQuestions(visibleQuestions + 1);
     } else {
